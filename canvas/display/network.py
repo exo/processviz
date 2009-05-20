@@ -36,6 +36,11 @@ class Network (model.Network):
         return x2 - x1, y2 - y1
     
     def on_paint (self, gc):
+        self.draw_background(gc)
+        for p in self.processes:
+            p.on_paint(gc)
+
+    def draw_background(self, gc):
         (w, h) = self.get_size()
         path = gc.CreatePath()
         path.AddRectangle(0, 0, w, h)

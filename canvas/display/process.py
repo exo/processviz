@@ -55,3 +55,28 @@ class Process (model.Process):
         w += (self.style.h_pad * 2)
         h += (self.style.v_pad * 2)
         return (w, h)
+    
+    def on_paint (self, gc):
+        self.draw_outline(gc)
+        self.draw_name(gc)
+
+    def draw_outline (self, gc):
+        style = self.style
+        (w, h) = self.get_size()
+        path = gc.CreatePath()
+        path.AddRectangle(self.x, self.y, w, h)
+        gc.SetPen(wx.Pen(colour=style.border, width=1))
+        brush = gc.CreateLinearGradientBrush(self.x, self.y, self.x, self.y + h, style.top, style.bottom)
+        gc.SetBrush(brush)
+        gc.DrawPath(path)
+        #self._path = path - for hit testing.
+
+    def draw_name (self, gc):
+        style = self.style
+        (w, h) = self.get_size()
+        font = gc.CreateFont(wx.Font(pointSize=style.main_label, family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL), style.text)
+        gc.SetFont(font)
+        (text_w, text_h) = gc.GetTextExtent(self.name)
+        text_x = (self.x + (w/2)) - (text_w / 2)
+        text_y = self.y + style.v_pad
+        gc.DrawText(self.name, text_x, text_y)
