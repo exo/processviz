@@ -38,6 +38,7 @@ class Network (model.Network):
     size = property(get_size)
     
     def on_paint (self, gc):
+        gc.Translate(self.x, self.y)
         self.draw_background(gc)
         for p in self.processes:
             p.on_paint(gc)
@@ -53,6 +54,8 @@ class Network (model.Network):
     
     def hit_test (self, x, y):
         min_x, min_y, max_x, max_y = self.bounds
+        # Compensate for transform.
+        x, y = x - self.x, y - self.y
         if max_x > x > min_x and max_y > y > min_y:
             # Hit within process network
             for p in self.processes:

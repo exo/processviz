@@ -39,7 +39,6 @@ class CanvasPanel (wx.Panel):
         except NotImplementedError:
             print "GraphicsContext not supported here"
             return
-
         # Drawing
         self.draw_background(gc)
         if self._network:
