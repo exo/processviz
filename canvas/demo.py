@@ -14,12 +14,13 @@ class CanvasPanel (wx.Panel):
         wx.Panel.__init__(self, frame, -1)
         # Properties
         self._network = None
+        self._selection = None
         
         # Events
         self.Bind(wx.EVT_PAINT, self.on_paint)
         self.Bind(wx.EVT_LEFT_DOWN, self.on_left_down)
-        #self.Bind(wx.EVT_LEFT_UP, self.on_left_up)
-        #self.Bind(wx.EVT_MOTION, self.on_motion)
+        self.Bind(wx.EVT_LEFT_UP, self.on_left_up)
+        self.Bind(wx.EVT_MOTION, self.on_motion)
         
         # Sample network.
         delta = Process(x=250, y=50, name="delta", params=None)
@@ -44,8 +45,32 @@ class CanvasPanel (wx.Panel):
         if self._network:
             self._network.on_paint(gc)
     
+    def on_motion (self, event):
+        if self._selection is not None:
+            p, transform = self._selection
+            click_x , click_y = self._click_point
+            tmp_x = event.X - transform[0]
+            tmp_y = event.Y - transform[1]
+            if tmp_x < 0:
+                p.x = 0
+            else: 
+                p.x = tmp_x
+            if tmp_y < 0:
+                p.y = 0
+            else:
+                p.y = tmp_y
+            self._click_point = event.X, event.Y
+            self.Refresh()
+
     def on_left_down (self, event):
-        print "%s" % self._network.hit_test(event.X, event.Y)
+        selection = self._network.hit_test(event.X, event.Y)
+        if selection is not None:
+            self._selection = selection
+            self._click_point = (event.X, event.Y)
+    
+    def on_left_up (self, event):
+        if self._selection:
+            self._selection = None
     
     def draw_background(self, gc):
         (w, h) = self.GetSize()

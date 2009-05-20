@@ -50,7 +50,6 @@ class Network (model.Network):
         gc.SetPen(wx.Pen(colour=self.style.border, width=1))
         gc.SetBrush(gc.CreateBrush(wx.Brush(self.style.background)))
         gc.DrawPath(path)
-        print "w:%s h:%s" % (w,h)
     
     def hit_test (self, x, y):
         min_x, min_y, max_x, max_y = self.bounds
@@ -60,6 +59,7 @@ class Network (model.Network):
             # Hit within process network
             for p in self.processes:
                 if p.hit_test(x, y) is not None:
-                    return p
+                    # Pass transform up.
+                    return p, (self.x, self.y)
             return self
         return None
