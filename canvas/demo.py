@@ -17,7 +17,7 @@ class CanvasPanel (wx.Panel):
         
         # Events
         self.Bind(wx.EVT_PAINT, self.on_paint)
-        #self.Bind(wx.EVT_LEFT_DOWN, self.on_left_down)
+        self.Bind(wx.EVT_LEFT_DOWN, self.on_left_down)
         #self.Bind(wx.EVT_LEFT_UP, self.on_left_up)
         #self.Bind(wx.EVT_MOTION, self.on_motion)
         
@@ -44,7 +44,10 @@ class CanvasPanel (wx.Panel):
         self.draw_background(gc)
         if self._network:
             self._network.on_paint(gc)
-
+    
+    def on_left_down (self, event):
+        print "%s" % self._network.hit_test(event.X, event.Y)
+    
     def draw_background(self, gc):
         (w, h) = self.GetSize()
         path = gc.CreatePath()

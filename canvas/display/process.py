@@ -38,12 +38,14 @@ class Process (model.Process):
     y = property(get_y, set_y)
     
     def get_bounds (self):
-        (w, h) = self.get_size()
+        (w, h) = self.size
         return (self.x, self.y, self.x + w, self.y + h)
+    bounds = property(get_bounds)
     
     def get_size (self):
         (w, h) = self.get_name_size()
         return (w, h)
+    size = property(get_size)
 
     def get_name_size (self):
         # Calculate size of process name & add outer padding.
@@ -62,7 +64,7 @@ class Process (model.Process):
 
     def draw_outline (self, gc):
         style = self.style
-        (w, h) = self.get_size()
+        (w, h) = self.size
         path = gc.CreatePath()
         path.AddRectangle(self.x, self.y, w, h)
         gc.SetPen(wx.Pen(colour=style.border, width=1))
@@ -73,10 +75,17 @@ class Process (model.Process):
 
     def draw_name (self, gc):
         style = self.style
-        (w, h) = self.get_size()
+        (w, h) = self.size
         font = gc.CreateFont(wx.Font(pointSize=style.main_label, family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL), style.text)
         gc.SetFont(font)
         (text_w, text_h) = gc.GetTextExtent(self.name)
         text_x = (self.x + (w/2)) - (text_w / 2)
         text_y = self.y + style.v_pad
         gc.DrawText(self.name, text_x, text_y)
+    
+    def hit_test (self, x, y):
+        min_x, min_y, max_x, max_y = self.bounds
+        if max_x > x > min_x and max_y > y > min_y:
+            # Hit within process
+            return self
+        return None

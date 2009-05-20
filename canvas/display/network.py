@@ -30,10 +30,12 @@ class Network (model.Network):
         max_x = max([b[2] for b in bounds] + [self.style.min_w])
         max_y = max([b[3] for b in bounds] + [self.style.min_h])
         return (min_x, min_y, max_x, max_y)
+    bounds = property(get_bounds)
     
     def get_size (self):
-        (x1, y1, x2, y2) = self.get_bounds()
+        (x1, y1, x2, y2) = self.bounds
         return x2 - x1, y2 - y1
+    size = property(get_size)
     
     def on_paint (self, gc):
         self.draw_background(gc)
@@ -41,10 +43,20 @@ class Network (model.Network):
             p.on_paint(gc)
 
     def draw_background(self, gc):
-        (w, h) = self.get_size()
+        (w, h) = self.size
         path = gc.CreatePath()
         path.AddRectangle(0, 0, w, h)
         gc.SetPen(wx.Pen(colour=self.style.border, width=1))
         gc.SetBrush(gc.CreateBrush(wx.Brush(self.style.background)))
         gc.DrawPath(path)
         print "w:%s h:%s" % (w,h)
+    
+    def hit_test (self, x, y):
+        min_x, min_y, max_x, max_y = self.bounds
+        if max_x > x > min_x and max_y > y > min_y:
+            # Hit within process network
+            for p in self.processes:
+                if p.hit_test(x, y) is not None:
+                    return p
+            return self
+        return None
