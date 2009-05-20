@@ -4,7 +4,8 @@ from util import AttrDict
 class Process (model.Process):
     def __init__ (self, x, y, name, params, input_chans=[], output_chans=[], sub_network=None):
         model.Process.__init__(self, name, params, input_chans, output_chans, sub_network)
-
+        self._x, self._y = x, y
+        
         # Process style, will end up in YAML at some point.
         self.style = AttrDict (
             top             = (202, 214, 234),
@@ -31,3 +32,19 @@ class Process (model.Process):
     def get_y (self): return self._y
     def set_y (self, y): self._y = y
     y = property(get_y, set_y)
+    
+    def get_bounds (self):
+        (w, h) = get_size()
+        return (x, y, x + w, y + h)
+    
+    def get_size (self):
+        (w, h) = get_name_size()
+        return (w, h)
+
+    def get_name_size (self):
+        # Calculate size of process name & add outer padding.
+        gc.SetFont(gc.CreateFont(wx.Font(pointSize=style['main_label'], family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL), style['text']))
+        (w, h) = gc.GetTextExtent(self.name)
+        w += (self.style.h_pad * 2)
+        h += (self.style.v_pad * 2)
+        return (w, h)
