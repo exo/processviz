@@ -1,5 +1,9 @@
+from __future__ import with_statement
+
+import wx
 import model
-from util import AttrDict
+
+from util import AttrDict, MeasuringContext
 
 class Process (model.Process):
     def __init__ (self, x, y, name, params, input_chans=[], output_chans=[], sub_network=None):
@@ -34,17 +38,20 @@ class Process (model.Process):
     y = property(get_y, set_y)
     
     def get_bounds (self):
-        (w, h) = get_size()
-        return (x, y, x + w, y + h)
+        (w, h) = self.get_size()
+        return (self.x, self.y, self.x + w, self.y + h)
     
     def get_size (self):
-        (w, h) = get_name_size()
+        (w, h) = self.get_name_size()
         return (w, h)
 
     def get_name_size (self):
         # Calculate size of process name & add outer padding.
-        gc.SetFont(gc.CreateFont(wx.Font(pointSize=style['main_label'], family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL), style['text']))
-        (w, h) = gc.GetTextExtent(self.name)
+        # TODO: This blows up on OS X right now, but should work.
+        # gc = wx.GraphicsContext.CreateMeasuringContext()
+        with MeasuringContext() as gc:
+            gc.SetFont(gc.CreateFont(wx.Font(pointSize=self.style.main_label, family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL), self.style.text))
+            (w, h) = gc.GetTextExtent(self.name)
         w += (self.style.h_pad * 2)
         h += (self.style.v_pad * 2)
         return (w, h)

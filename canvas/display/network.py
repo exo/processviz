@@ -24,11 +24,11 @@ class Network (model.Network):
     y = property(get_y, set_y)
     
     def get_bounds (self):
-        x = [p.x for p in self.processes] + [0, self.style.min_w]
-        y = [p.y for p in self.processes] + [0, self.style.min_h]
-        min_x, max_x = min(x), max(x)
-        min_y, max_y = min(y), max(y)
-        
+        bounds = [p.get_bounds() for p in self.processes]
+        min_x = min([b[0] for b in bounds] + [0])
+        min_y = min([b[1] for b in bounds] + [0])
+        max_x = max([b[2] for b in bounds] + [self.style.min_w])
+        max_y = max([b[3] for b in bounds] + [self.style.min_h])
         return (min_x, min_y, max_x, max_y)
     
     def get_size (self):
