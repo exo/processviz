@@ -14,7 +14,7 @@ class CanvasPanel (wx.Panel):
         wx.Panel.__init__(self, frame, -1)
         # Properties
         self._network = None
-        self._selection = None
+        self._mouse_down = None
         
         # Events
         self.Bind(wx.EVT_PAINT, self.on_paint)
@@ -46,11 +46,11 @@ class CanvasPanel (wx.Panel):
             self._network.on_paint(gc)
     
     def on_motion (self, event):
-        if self._selection is not None:
-            p, transform = self._selection
-            click_x , click_y = self._click_point
-            tmp_x = event.X - transform[0]
-            tmp_y = event.Y - transform[1]
+        if self._mouse_down is not None:
+            # Get all of the click data.
+            (p, offset), transform = self._mouse_down
+            tmp_x = (event.X - transform[0]) - offset[0]
+            tmp_y = (event.Y - transform[1]) - offset[1]
             if tmp_x < 0:
                 p.x = 0
             else: 
@@ -59,18 +59,16 @@ class CanvasPanel (wx.Panel):
                 p.y = 0
             else:
                 p.y = tmp_y
-            self._click_point = event.X, event.Y
             self.Refresh()
 
     def on_left_down (self, event):
         selection = self._network.hit_test(event.X, event.Y)
         if selection is not None:
-            self._selection = selection
-            self._click_point = (event.X, event.Y)
+            self._mouse_down = selection
     
     def on_left_up (self, event):
-        if self._selection:
-            self._selection = None
+        if self._mouse_down:
+            self._mouse_down = None
     
     def draw_background(self, gc):
         (w, h) = self.GetSize()

@@ -58,8 +58,9 @@ class Network (model.Network):
         if max_x > x > min_x and max_y > y > min_y:
             # Hit within process network
             for p in self.processes:
-                if p.hit_test(x, y) is not None:
+                hit_result = p.hit_test(x, y)
+                if hit_result is not None:
                     # Pass transform up.
-                    return p, (self.x, self.y)
+                    return hit_result, (self.x, self.y)
             return self
         return None

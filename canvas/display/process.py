@@ -87,5 +87,5 @@ class Process (model.Process):
         min_x, min_y, max_x, max_y = self.bounds
         if max_x > x > min_x and max_y > y > min_y:
             # Hit within process
-            return self
+            return self, (x - self.x, y - self.y)
         return None
