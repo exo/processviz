@@ -6,8 +6,8 @@ from chan_end import ChanEnd
 from util import AttrDict, MeasuringContext
 
 class Process (model.Process):
-    def __init__ (self, x, y, name, params=None, sub_network=None):
-        model.Process.__init__(self, name, params, sub_network)
+    def __init__ (self, x, y, name, params=None, input_chans=[], output_chans=[], sub_network=None):
+        model.Process.__init__(self, name, params,input_chans, output_chans, sub_network)
         self._x, self._y = x, y
         
         # Process style, will end up in YAML at some point.
@@ -47,6 +47,12 @@ class Process (model.Process):
     
     def get_size (self):
         (w, h) = self.get_name_size(self.name)
+        chan_end_w, chan_end_h = self.max_chan_end_size()
+        # Width either the label, or the max of the channel ends.
+        w = max(w, ((2 * chan_end_w) + self.style.h_pad))
+        # Height sum of label and maximum ends height
+        h += max(len(self.input_chans),len(self.output_chans)) * chan_end_h + self.style.v_pad
+        
         return (w, h)
     size = property(get_size)
 
@@ -61,12 +67,21 @@ class Process (model.Process):
         h += (self.style.v_pad * 2)
         return (w, h)
     
+    def max_chan_end_size (self):
+        sizes = [c.size for c in (self.input_chans + self.output_chans)]
+        max_w = max([s[0] for s in sizes])
+        max_h = max([s[1] for s in sizes])
+        return (max_w, max_h)
+
     def on_paint (self, gc):
         self.draw_outer(gc)
         self.draw_name(gc)
         if self.input_chans is not []:
+            x = (self.x + self.style.h_pad)
+            y = (self.y + self.size[1]) - self.style.v_pad
             for c in self.input_chans:
-                #print "Bounds for %s = %s" % (c.name, c.get_bounds())
+                y -= self.max_chan_end_size()[1]
+                c.on_paint(gc, (x,y))
 
     def draw_outer (self, gc):
         style = self.style

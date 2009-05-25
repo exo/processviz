@@ -1,7 +1,8 @@
 class Process (object):
-    def __init__ (self, name, params, sub_network):
+    def __init__ (self, name, params, input_chans, output_chans, sub_network):
         self._name = name
-        self._input_chans = self._output_chans = []
+        self._input_chans = input_chans
+        self._output_chans = output_chans
         self._sub_network = sub_network
         
     def get_name (self):

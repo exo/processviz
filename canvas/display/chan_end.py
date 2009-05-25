@@ -6,9 +6,8 @@ import model
 
 class ChanEnd (model.ChanEnd):
     
-    def __init__ (self, process, name, direction, datatype):
+    def __init__ (self, name, direction, datatype):
         model.ChanEnd.__init__(self, name, direction, datatype)
-        self.process = process
         self.style = AttrDict (
             fill            = (218, 230, 242),
             hilight         = (171,  75,  75),
@@ -32,6 +31,16 @@ class ChanEnd (model.ChanEnd):
             (w, h) = gc.GetTextExtent(self.name)
         w += (style.w_pad * 2)
         return (w, h)
-    
-    def get_bounds (self):
+
+    def draw_label (self, gc, x, y):
+        font = gc.CreateFont(wx.Font(pointSize=self.style.text_size, family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL), self.style.text_colour)
+        gc.SetFont(font)
+        gc.DrawText(self.name, x, y)
+
+    def get_size (self):
         return self.get_label_size()
+    size = property(get_size)
+
+    def on_paint (self, gc, location):
+        (x, y) = location
+        self.draw_label(gc, x, y)
