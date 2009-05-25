@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 import wx
-from display import Process, Network
+from display import Process, Network, ChanEnd
 from util import AttrDict
 
 class CanvasFrame (wx.Frame):
@@ -24,6 +24,8 @@ class CanvasPanel (wx.Panel):
         
         # Sample network.
         delta = Process(x=250, y=50, name="delta")
+        delta.add_chan_ends([('in.0', 'input', 'INT'), ('in.1', 'input', 'INT'), ('out', 'output', 'INT')])
+        
         integrate = Process(x=100, y=100, name="integrate")
         network = Network(x=100,y=100)
         network.add_process(delta)

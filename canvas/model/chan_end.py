@@ -1,6 +1,6 @@
-class ChannelEnd (object):
-	def __init__ (self, direction, name, datatype):
-		self._direction, self._name, self._datatype = direction, name, datatype
+class ChanEnd (object):
+	def __init__ (self, name, direction, datatype):
+		self._name, self._direction, self._datatype = name, direction, datatype
 	
 	def get_name (self):
 		return self._name

@@ -2,12 +2,12 @@ from __future__ import with_statement
 
 import wx
 import model
-
+from chan_end import ChanEnd
 from util import AttrDict, MeasuringContext
 
 class Process (model.Process):
-    def __init__ (self, x, y, name, params=None, input_chans=[], output_chans=[], sub_network=None):
-        model.Process.__init__(self, name, params, input_chans, output_chans, sub_network)
+    def __init__ (self, x, y, name, params=None, sub_network=None):
+        model.Process.__init__(self, name, params, sub_network)
         self._x, self._y = x, y
         
         # Process style, will end up in YAML at some point.
@@ -64,6 +64,9 @@ class Process (model.Process):
     def on_paint (self, gc):
         self.draw_outer(gc)
         self.draw_name(gc)
+        if self.input_chans is not []:
+            for c in self.input_chans:
+                #print "Bounds for %s = %s" % (c.name, c.get_bounds())
 
     def draw_outer (self, gc):
         style = self.style
@@ -101,4 +104,13 @@ class Process (model.Process):
             return self, (x - self.x, y - self.y)
         return None
 
-    
+    def add_chan_ends (self, chan_ends):
+        for c in chan_ends:
+            self.add_chan_end(c[0], c[1], c[2])
+
+    def add_chan_end (self, name, direction, datatype):
+        if direction == 'input':
+            self.input_chans.append(ChanEnd(self, name, direction, datatype))
+        elif direction == 'output':
+            self.output_chans.append(ChanEnd(self, name, direction, datatype))
+        #TODO: Error out here if the type is unknown.
