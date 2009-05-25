@@ -76,12 +76,16 @@ class Process (model.Process):
     def on_paint (self, gc):
         self.draw_outer(gc)
         self.draw_name(gc)
-        if self.input_chans is not []:
-            x = (self.x + self.style.h_pad)
-            y = (self.y + self.size[1]) - self.style.v_pad
-            for c in self.input_chans:
-                y -= self.max_chan_end_size()[1]
-                c.on_paint(gc, (x,y))
+        x = self.x + self.style.h_pad
+        y = (self.y + self.size[1]) - self.style.v_pad
+        for c in self.input_chans:
+            y -= self.max_chan_end_size()[1]
+            c.on_paint(gc, (x,y))
+        x = (self.x + self.size[0]) - self.style.h_pad
+        y = (self.y + self.size[1]) - self.style.v_pad
+        for c in self.output_chans:
+            y -= self.max_chan_end_size()[1]
+            c.on_paint(gc, (x - c.size[1], y))
 
     def draw_outer (self, gc):
         style = self.style
