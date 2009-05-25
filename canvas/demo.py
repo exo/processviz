@@ -23,10 +23,11 @@ class CanvasPanel (wx.Panel):
         self.Bind(wx.EVT_MOTION, self.on_motion)
         
         # Sample network.
-        delta = Process(x=250, y=50, name="delta", params=None)
-        
+        delta = Process(x=250, y=50, name="delta")
+        integrate = Process(x=100, y=100, name="integrate")
         network = Network(x=100,y=100)
         network.add_process(delta)
+        network.add_process(integrate)
         self._network = network
         
         self.style = AttrDict(

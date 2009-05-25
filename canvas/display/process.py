@@ -6,7 +6,7 @@ import model
 from util import AttrDict, MeasuringContext
 
 class Process (model.Process):
-    def __init__ (self, x, y, name, params, input_chans=[], output_chans=[], sub_network=None):
+    def __init__ (self, x, y, name, params=None, input_chans=[], output_chans=[], sub_network=None):
         model.Process.__init__(self, name, params, input_chans, output_chans, sub_network)
         self._x, self._y = x, y
         
@@ -15,8 +15,9 @@ class Process (model.Process):
             top             = (202, 214, 234),
             bottom          = (172, 192, 216),
             bottom_hi       = (255,255,255),
-            shadow          = (218, 230, 242),
-            s_offset        = 5,
+            shadow          = True,
+            shadow_colour   = (218, 230, 242),
+            shadow_offset   = 3,
             border          = ( 76,  76,  85),
             text            = ( 44,  48,  52),
             v_pad           = 10,               # Vertical padding
@@ -39,6 +40,8 @@ class Process (model.Process):
     
     def get_bounds (self):
         (w, h) = self.size
+        if self.style.shadow:
+            w, h = w + self.style.shadow_offset, h + self.style.shadow_offset
         return (self.x, self.y, self.x + w, self.y + h)
     bounds = property(get_bounds)
     
@@ -59,12 +62,20 @@ class Process (model.Process):
         return (w, h)
     
     def on_paint (self, gc):
-        self.draw_outline(gc)
+        self.draw_outer(gc)
         self.draw_name(gc)
 
-    def draw_outline (self, gc):
+    def draw_outer (self, gc):
         style = self.style
         (w, h) = self.size
+        if style.shadow:
+            path = gc.CreatePath()
+            path.AddRectangle(self.x + style.shadow_offset, self.y + style.shadow_offset, w, h)
+            gc.SetPen(wx.Pen(colour=style.shadow_colour, width=0))
+            gc.SetBrush(gc.CreateBrush(wx.Brush(style.shadow_colour)))
+            gc.DrawPath(path)
+        
+        # Outer rect.
         path = gc.CreatePath()
         path.AddRectangle(self.x, self.y, w, h)
         gc.SetPen(wx.Pen(colour=style.border, width=1))
@@ -72,6 +83,7 @@ class Process (model.Process):
         gc.SetBrush(brush)
         gc.DrawPath(path)
         #self._path = path - for hit testing.
+
 
     def draw_name (self, gc):
         style = self.style

@@ -62,5 +62,5 @@ class Network (model.Network):
                 if hit_result is not None:
                     # Pass transform up.
                     return hit_result, (self.x, self.y)
-            return self
+            # Network hit-test would return here.
         return None
