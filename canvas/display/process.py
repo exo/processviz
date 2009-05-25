@@ -20,7 +20,7 @@ class Process (model.Process):
             shadow_offset   = 3,
             border          = ( 76,  76,  85),
             text_colour     = ( 44,  48,  52),
-            v_pad           = 10,               # Vertical padding
+            v_pad           = 5,               # Vertical padding
             h_pad           = 10,               # Horizontal padding
             lbl_pad         = 2,                # Label padding
             cend_r          = 4.5,              # Radius of channel end.
@@ -76,16 +76,16 @@ class Process (model.Process):
     def on_paint (self, gc):
         self.draw_outer(gc)
         self.draw_name(gc)
-        x = self.x + self.style.h_pad
-        y = (self.y + self.size[1]) - self.style.v_pad
+        x = self.x
+        y = self.y + self.size[1] - self.style.h_pad
         for c in self.input_chans:
-            y -= self.max_chan_end_size()[1]
             c.on_paint(gc, (x,y))
-        x = (self.x + self.size[0]) - self.style.h_pad
-        y = (self.y + self.size[1]) - self.style.v_pad
+            y -= (self.max_chan_end_size()[1] + self.style.v_pad)
+        x = self.x + self.size[0]
+        y = self.y + self.size[1] - self.style.h_pad
         for c in self.output_chans:
-            y -= self.max_chan_end_size()[1]
-            c.on_paint(gc, (x - c.size[1], y))
+            c.on_paint(gc, (x, y))
+            y -= (self.max_chan_end_size()[1] + self.style.v_pad)
 
     def draw_outer (self, gc):
         style = self.style
