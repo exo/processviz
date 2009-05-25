@@ -19,7 +19,7 @@ class Process (model.Process):
             shadow_colour   = (218, 230, 242),
             shadow_offset   = 3,
             border          = ( 76,  76,  85),
-            text            = ( 44,  48,  52),
+            text_colour     = ( 44,  48,  52),
             v_pad           = 10,               # Vertical padding
             h_pad           = 10,               # Horizontal padding
             lbl_pad         = 2,                # Label padding
@@ -46,17 +46,17 @@ class Process (model.Process):
     bounds = property(get_bounds)
     
     def get_size (self):
-        (w, h) = self.get_name_size()
+        (w, h) = self.get_name_size(self.name)
         return (w, h)
     size = property(get_size)
 
-    def get_name_size (self):
+    def get_name_size (self, name):
         # Calculate size of process name & add outer padding.
         # TODO: This blows up on OS X right now, but should work.
         # gc = wx.GraphicsContext.CreateMeasuringContext()
         with MeasuringContext() as gc:
-            gc.SetFont(gc.CreateFont(wx.Font(pointSize=self.style.main_label, family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL), self.style.text))
-            (w, h) = gc.GetTextExtent(self.name)
+            gc.SetFont(gc.CreateFont(wx.Font(pointSize=self.style.main_label, family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL), self.style.text_colour))
+            (w, h) = gc.GetTextExtent(name)
         w += (self.style.h_pad * 2)
         h += (self.style.v_pad * 2)
         return (w, h)
@@ -83,12 +83,11 @@ class Process (model.Process):
         gc.SetBrush(brush)
         gc.DrawPath(path)
         #self._path = path - for hit testing.
-
-
+        
     def draw_name (self, gc):
         style = self.style
         (w, h) = self.size
-        font = gc.CreateFont(wx.Font(pointSize=style.main_label, family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL), style.text)
+        font = gc.CreateFont(wx.Font(pointSize=style.main_label, family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL), style.text_colour)
         gc.SetFont(font)
         (text_w, text_h) = gc.GetTextExtent(self.name)
         text_x = (self.x + (w/2)) - (text_w / 2)
@@ -101,3 +100,5 @@ class Process (model.Process):
             # Hit within process
             return self, (x - self.x, y - self.y)
         return None
+
+    
