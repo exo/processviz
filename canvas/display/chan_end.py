@@ -12,6 +12,7 @@ class ChanEnd (model.ChanEnd):
             fill            = (218, 230, 242),
             hilight         = (171,  75,  75),
             border          = ( 76,  76,  85),
+            shadow          = True,
             shadow_colour   = (218, 230, 242),
             shadow_offset   = 3,
             radius          = 4.5,                             
@@ -43,6 +44,13 @@ class ChanEnd (model.ChanEnd):
         gc.DrawText(self.name, x, (y - self.get_label_size()[1]/2))
     
     def draw_end (self, gc, x, y):
+        style = self.style
+        if self.direction == 'output' and style.shadow:
+            path = gc.CreatePath()
+            path.AddCircle(x + style.shadow_offset, y + style.shadow_offset, style.radius)
+            gc.SetPen(wx.Pen(colour=style.shadow_colour, width=0))
+            gc.SetBrush(gc.CreateBrush(wx.Brush(style.shadow_colour)))
+            gc.DrawPath(path)
         path = gc.CreatePath()
         path.AddCircle(x, y, self.style.radius)
         gc.SetPen(wx.Pen(colour=self.style.border, width=1))
