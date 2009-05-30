@@ -9,6 +9,12 @@ class CanvasFrame (wx.Frame):
         wx.Frame.__init__(self, parent, -1, "Process Canvas", size=(800,600))
         self.panel = CanvasPanel(self)
 
+    def get_network(self): return self.panel._network
+    def set_network(self, n):
+        print "Set network"
+        self.panel._network = n
+    network = property(get_network, set_network)
+
 class CanvasPanel (wx.Panel):
     def __init__ (self, frame):
         wx.Panel.__init__(self, frame, -1)
@@ -22,19 +28,10 @@ class CanvasPanel (wx.Panel):
         self.Bind(wx.EVT_LEFT_UP, self.on_left_up)
         self.Bind(wx.EVT_MOTION, self.on_motion)
         
-        # Sample network.
-        delta = Process(x=250, y=50, name="delta", input_chans=[ChanEnd('in.0', 'input', 'INT'), ChanEnd('in.1', 'input', 'INT')], output_chans=[ChanEnd('out', 'output', 'INT')])
-        
-        integrate = Process(x=100, y=100, name="integrate", input_chans=[ChanEnd('in', 'input', 'BOOL')], output_chans=[ChanEnd('out', 'output', 'BOOL')])
-        network = Network(x=100,y=100)
-        network.add_process(delta)
-        network.add_process(integrate)
-        self._network = network
-        
         self.style = AttrDict(
             background = (175, 175, 175)
         )
-    
+
     def on_paint (self, event):
         dc = wx.PaintDC(self)
         try:
@@ -46,11 +43,13 @@ class CanvasPanel (wx.Panel):
         self.draw_background(gc)
         if self._network:
             self._network.on_paint(gc)
+        else:
+            print "No network"
     
     def on_motion (self, event):
         if self._mouse_down is not None:
             # Get all of the click data.
-            (p, offset), transform = self._mouse_down
+            ((p, offset), transform), _ = self._mouse_down
             tmp_x = (event.X - transform[0]) - offset[0]
             tmp_y = (event.Y - transform[1]) - offset[1]
             if tmp_x < 0:
@@ -79,12 +78,13 @@ class CanvasPanel (wx.Panel):
         brush = gc.CreateBrush(wx.Brush(self.style.background))
         gc.SetBrush(brush)
         gc.DrawPath(path)
-            
-class MyApp(wx.App):
-    def OnInit (self):
-        frame = CanvasFrame(parent=None)
-        frame.Show(True)
-        return True
 
-app = MyApp(redirect=False)
-app.MainLoop()
+# Demo main.
+# Sample network.
+#delta = Process(x=250, y=50, name="delta", input_chans=[ChanEnd('in.0', 'input', 'INT'), ChanEnd('in.1', 'input', 'INT')], output_chans=[ChanEnd('out', 'output', 'INT')])
+
+#integrate = Process(x=100, y=100, name="integrate", input_chans=[ChanEnd('in', 'input', 'BOOL')], output_chans=[ChanEnd('out', 'output', 'BOOL')])
+#network = Network(x=100,y=100)
+#network.add_process(delta)
+#network.add_process(integrate)
+#self._network = network

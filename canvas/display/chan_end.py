@@ -1,8 +1,8 @@
 from __future__ import with_statement
-from util import AttrDict, MeasuringContext
+from canvas.util import AttrDict, MeasuringContext
 
 import wx
-import model
+from canvas import model
 
 class ChanEnd (model.ChanEnd):
     

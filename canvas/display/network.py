@@ -1,7 +1,7 @@
 import wx
-import model
+from canvas import model
 
-from util import AttrDict
+from canvas.util import AttrDict
 
 class Network (model.Network):
     def __init__ (self, x=0, y=0):

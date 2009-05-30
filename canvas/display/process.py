@@ -1,9 +1,9 @@
 from __future__ import with_statement
 
 import wx
-import model
+from canvas import model
 from chan_end import ChanEnd
-from util import AttrDict, MeasuringContext
+from canvas.util import AttrDict, MeasuringContext
 
 class Process (model.Process):
     def __init__ (self, x, y, name, params=None, input_chans=[], output_chans=[], sub_network=None):
@@ -37,7 +37,7 @@ class Process (model.Process):
     def get_y (self): return self._y
     def set_y (self, y): self._y = y
     y = property(get_y, set_y)
-    
+
     def get_bounds (self):
         (w, h) = self.size
         if self.style.shadow:
@@ -68,10 +68,13 @@ class Process (model.Process):
         return (w, h)
     
     def max_chan_end_size (self):
-        sizes = [c.size for c in (self.input_chans + self.output_chans)]
-        max_w = max([s[0] for s in sizes])
-        max_h = max([s[1] for s in sizes])
-        return (max_w, max_h)
+        if len(self.input_chans + self.output_chans) > 0:
+            sizes = [c.size for c in (self.input_chans + self.output_chans)]
+            max_w = max([s[0] for s in sizes])
+            max_h = max([s[1] for s in sizes])
+            return (max_w, max_h)
+        else:
+            return (0,0)
 
     def on_paint (self, gc):
         self.draw_outer(gc)
@@ -86,6 +89,8 @@ class Process (model.Process):
         for c in self.output_chans:
             c.on_paint(gc, (x, y))
             y -= (self.max_chan_end_size()[1] + self.style.v_pad)
+        if self.sub_network:
+           self.sub_network.on_paint(gc)
 
     def draw_outer (self, gc):
         style = self.style
@@ -120,6 +125,10 @@ class Process (model.Process):
         min_x, min_y, max_x, max_y = self.bounds
         if max_x > x > min_x and max_y > y > min_y:
             # Hit within process
+            if self.sub_network:
+                sub_result = self.sub_network.hit_test(x, y)
+                if sub_result is not None:
+                    return sub_result
             return self, (x - self.x, y - self.y)
         return None
 
