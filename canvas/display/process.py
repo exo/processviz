@@ -6,8 +6,8 @@ from chan_end import ChanEnd
 from canvas.util import AttrDict, MeasuringContext
 
 class Process (model.Process):
-    def __init__ (self, x, y, name, params=None, input_chans=[], output_chans=[], sub_network=None):
-        model.Process.__init__(self, name, params,input_chans, output_chans, sub_network)
+    def __init__ (self, x, y, name, params=None, input_chans=[], output_chans=[], parent=None, sub_network=None):
+        model.Process.__init__(self, name, params,input_chans, output_chans, parent, sub_network)
         self._x, self._y = x, y
         
         # Process style, will end up in YAML at some point.
@@ -153,3 +153,9 @@ class Process (model.Process):
         elif direction == 'output':
             self.output_chans.append(ChanEnd(self, name, direction, datatype))
         #TODO: Error out here if the type is unknown.
+
+    def structure (self):
+        if self._sub_network:
+            return dict(_type="Process", name=self.name, sub_network=self._sub_network.structure())
+        else:
+            return dict(_type="Process", name=self.name, sub_network=None)

@@ -1,9 +1,10 @@
 class Process (object):
-    def __init__ (self, name, params, input_chans, output_chans, sub_network):
+    def __init__ (self, name, params, input_chans, output_chans, parent, sub_network):
         self._name = name
         self._input_chans = input_chans
         self._output_chans = output_chans
         self._sub_network = sub_network
+        self._parent = parent
         self._par_count = 0
         
     def get_name (self):
@@ -33,7 +34,6 @@ class Process (object):
     sub_network = property(get_sub_network, set_sub_network)
 
     def par_increment (self):
-        print "Par increment called on %s, %s is value " % (id(self), self._par_count)
         tmp = self._par_count
         self._par_count += 1
         return tmp # return previous so that we know 0->1
@@ -41,3 +41,8 @@ class Process (object):
     def par_decrement (self):
         self._par_count -= 1
         return self._par_count
+
+    def get_parent (self):
+        return self._parent
+
+    parent = property(get_parent)

@@ -38,10 +38,12 @@ class Network (model.Network):
     size = property(get_size)
     
     def on_paint (self, gc):
+        gc.PushState()
         gc.Translate(self.x, self.y)
         self.draw_background(gc)
         for p in self.processes:
             p.on_paint(gc)
+        gc.PopState()
 
     def draw_background(self, gc):
         (w, h) = self.size

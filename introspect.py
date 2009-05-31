@@ -3,8 +3,9 @@ from canvas.demo import CanvasFrame
 from canvas.display import ChanEnd, Network, Process
 
 from logparser.parser import LogParser
+from pprint import pprint
 
-INS, AJW, START, CALL, OUTPUT, INPUT = 'INS AJW START CALL OUTPUT INPUT'.split(' ')
+INS, AJW, START, END, CALL, OUTPUT, INPUT = 'INS AJW START END CALL OUTPUT INPUT'.split(' ')
 
 class MyApp(wx.App):
     
@@ -25,6 +26,7 @@ class MyApp(wx.App):
         self._processes[l[1]] = proc
         network = Network(x=0, y=0)
         network.add_process(proc)
+        self._root_network = network
 
         # Add network to frame & show.
         frame.network = network
@@ -35,14 +37,22 @@ class MyApp(wx.App):
     def on_idle(self, e):
         l = self.lp.next()
         if l:
-            if l[0] == START:
+            if l[0] == INS:
+                # Instruction, store line number?
+                pass
+            elif l[0] == INPUT:
+                # Channel input.
+                pass
+            elif l[0] == OUTPUT:
+                # Channel output.
+                pass
+            elif l[0] == START:
                 parent_proc_ws = l[1]
                 if parent_proc_ws in self._shadowed_procs:
                     parent_proc = self._shadowed_procs[parent_proc_ws]
                 else:
                     parent_proc = self._processes[parent_proc_ws]
                 par_count = parent_proc.par_increment()
-                print "parent proc ws: %s par count: %s" % (parent_proc_ws, par_count)
 
                 # We'll need to add a sub network, make sure it exists.
                 if parent_proc.sub_network is None:
@@ -53,25 +63,52 @@ class MyApp(wx.App):
                     if parent_proc_ws in self._shadowed_procs:
                         raise Exception("Shadowing a shadowed proc - Reimplement me!")
                     self._shadowed_procs[parent_proc_ws] = parent_proc
-                    proc = Process(x=0, y=0, name="")
+                    proc = Process(x=0, y=0, name="", parent=parent_proc)
+                    print "Start proc at %s, parent shadowed" % (parent_proc_ws)
                     self._processes[parent_proc_ws] = proc
                     parent_proc.sub_network.add_process(proc)
+                    print "Added %s to %s" % (parent_proc_ws, parent_proc.name)
 
                 # Add the newly started process.
                 proc_ws = l[2]
-                proc = Process(x=0, y=0, name="")
+                proc = Process(x=0, y=0, name="", parent=parent_proc)
+                print "Start proc at %s, parent %s" % (proc_ws, parent_proc_ws)
                 self._processes[proc_ws] = proc
                 parent_proc.sub_network.add_process(proc)
-
+                pprint(self._root_network.structure())
+            elif l[0] == END:
+                proc_ws = l[1]
+                proc = self._processes[proc_ws]
+                parent = proc.parent
+                parent.par_decrement()
+                # Remove proc from display network.
+                parent.sub_network.remove_process(proc)
+                # Remove proc from ws tracking list.
+                del self._processes[proc_ws]
             elif l[0] == AJW:
                 old_ws, new_ws = l[1], l[2]
                 print "AJW: %s, %s" % (old_ws, new_ws)
-                self._processes[new_ws] = self._processes[old_ws]
-                del self._processes[old_ws]
+                if new_ws in self._shadowed_procs:
+                    proc = self._processes[old_ws]
+                    parent = proc.parent
+                    parent.par_decrement()
+                    # Remove proc from display network.
+                    parent.sub_network.remove_process(proc)
+                    # Remove proc from ws tracking list.
+                    del self._processes[old_ws]
+                    # Bring forward the shadowed parent, the child has ended.
+                    self._processes[new_ws] = self._shadowed_procs[new_ws]
+                    del self._shadowed_procs[new_ws]
+                else:
+                    # Ordinary orkspace adjustment.
+                    self._processes[new_ws] = self._processes[old_ws]
+                    del self._processes[old_ws]
             elif l[0] == CALL:
                 ws, proc_name = l[1], l[2]
                 print "Setting name of %s to %s" % (ws, proc_name)
                 self._processes[ws].name = proc_name
+            else:
+                raise Exception("Unknown event type: %s" % l[0])
             self._frame.Refresh()
 
     def setup_network (self):

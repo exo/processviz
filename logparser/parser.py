@@ -1,4 +1,4 @@
-INS, AJW, START, CALL, OUTPUT, INPUT = 'INS AJW START CALL OUTPUT INPUT'.split(' ')
+INS, AJW, START, END, CALL, OUTPUT, INPUT = 'INS AJW START END CALL OUTPUT INPUT'.split(' ')
 
 class LogParser (object):
     
@@ -31,6 +31,9 @@ class LogParser (object):
             # Start process
             new_address = int(d[2], 16)
             return [START, address, new_address]
+        elif cmd == 'end':
+            # End process
+            return [END, address]
         elif cmd == 'call':
             # Call
             return [CALL, address, d[2]]
