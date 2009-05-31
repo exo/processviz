@@ -31,11 +31,17 @@ class Process (model.Process):
         )
 
     def get_x (self): return self._x
-    def set_x (self, x): self._x = x
+    def set_x (self, x):
+        self._x = x
+        if self._sub_network:
+            self._sub_network.x = x+20
     x = property(get_x, set_x)
 
     def get_y (self): return self._y
-    def set_y (self, y): self._y = y
+    def set_y (self, y):
+        self._y = y
+        if self._sub_network:
+            self._sub_network.y = y+20
     y = property(get_y, set_y)
 
     def get_bounds (self):
@@ -52,6 +58,11 @@ class Process (model.Process):
         w = max(w, ((2 * chan_end_w) + self.style.h_pad))
         # Height sum of label and maximum ends height
         h += max(len(self.input_chans),len(self.output_chans)) * chan_end_h + self.style.v_pad
+        
+        if self._sub_network:
+            (net_w, net_h) = self._sub_network.get_size()
+            w += net_w
+            h += net_h
         
         return (w, h)
     size = property(get_size)
@@ -129,7 +140,7 @@ class Process (model.Process):
                 sub_result = self.sub_network.hit_test(x, y)
                 if sub_result is not None:
                     return sub_result
-            return self, (x - self.x, y - self.y)
+            return dict(hit=self, offset=(x - self.x, y - self.y))
         return None
 
     def add_chan_ends (self, chan_ends):

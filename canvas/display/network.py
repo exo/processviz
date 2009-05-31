@@ -60,7 +60,8 @@ class Network (model.Network):
             for p in self.processes:
                 hit_result = p.hit_test(x, y)
                 if hit_result is not None:
-                    # Pass transform up.
-                    return hit_result, (self.x, self.y)
-            # Network hit-test would return here.
+                    # Sum transforms, in case of sub network.
+                    (tx, ty) = hit_result.get('transform', (0,0))
+                    hit_result['transform'] = (self.x+tx, self.y+ty)
+                    return hit_result
         return None

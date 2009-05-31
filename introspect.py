@@ -48,6 +48,7 @@ class MyApp(wx.App):
                 ws, proc_name = l[1], l[2]
                 print "Setting name of %s to %s" % (ws, proc_name)
                 self._processes[ws].name = proc_name
+            self._frame.Refresh()
 
     def setup_network (self):
         delta = Process(x=250, y=50, name="delta", input_chans=[ChanEnd('in.0', 'input', 'INT'), ChanEnd('in.1', 'input', 'INT')], output_chans=[ChanEnd('out', 'output', 'INT')])

@@ -49,9 +49,10 @@ class CanvasPanel (wx.Panel):
     def on_motion (self, event):
         if self._mouse_down is not None:
             # Get all of the click data.
-            ((p, offset), transform), _ = self._mouse_down
-            tmp_x = (event.X - transform[0]) - offset[0]
-            tmp_y = (event.Y - transform[1]) - offset[1]
+            hit = self._mouse_down
+            p = hit['hit']
+            tmp_x = (event.X - hit['transform'][0]) - hit['offset'][0]
+            tmp_y = (event.Y - hit['transform'][1]) - hit['offset'][1]
             if tmp_x < 0:
                 p.x = 0
             else: 
