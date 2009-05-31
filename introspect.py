@@ -11,34 +11,58 @@ class MyApp(wx.App):
     def OnInit (self):
         frame = CanvasFrame(parent=None)
         frame.Bind(wx.EVT_IDLE, self.on_idle)
-        self._frame = frame
         #self.setup_network()
         self._processes = {}
+        self._shadowed_procs = {}
+
         # Log Parser.
         self.lp = LogParser('commstime.log')
+
+        # Setup top level process
         l = self.lp.next()
-        proc = Process(x=0, y=0, name="")
+        proc = Process(x=0, y=0, name="TLP")
+        print "Initial is %s" % id(proc)
         self._processes[l[1]] = proc
         network = Network(x=0, y=0)
         network.add_process(proc)
-        self._frame.network = network
+
+        # Add network to frame & show.
+        frame.network = network
         frame.Show(True)
+        self._frame = frame
         return True
-    
+
     def on_idle(self, e):
         l = self.lp.next()
         if l:
             if l[0] == START:
-                parent_proc = self._processes[l[1]]
+                parent_proc_ws = l[1]
+                if parent_proc_ws in self._shadowed_procs:
+                    parent_proc = self._shadowed_procs[parent_proc_ws]
+                else:
+                    parent_proc = self._processes[parent_proc_ws]
+                par_count = parent_proc.par_increment()
+                print "parent proc ws: %s par count: %s" % (parent_proc_ws, par_count)
+
+                # We'll need to add a sub network, make sure it exists.
+                if parent_proc.sub_network is None:
+                    parent_proc.sub_network = Network(x=parent_proc.x, y=parent_proc.y)
+
+                # Shadow & preserve the outer proc, use a new process.
+                if par_count == 0:
+                    if parent_proc_ws in self._shadowed_procs:
+                        raise Exception("Shadowing a shadowed proc - Reimplement me!")
+                    self._shadowed_procs[parent_proc_ws] = parent_proc
+                    proc = Process(x=0, y=0, name="")
+                    self._processes[parent_proc_ws] = proc
+                    parent_proc.sub_network.add_process(proc)
+
+                # Add the newly started process.
                 proc_ws = l[2]
                 proc = Process(x=0, y=0, name="")
                 self._processes[proc_ws] = proc
-                print "Added new proc at %s, parent is %s" % (proc_ws, l[1])
-                if parent_proc.sub_network is not None:
-                    parent_proc.sub_network.add_process(proc)
-                else:
-                    parent_proc.sub_network = Network(x=parent_proc.x, y=parent_proc.y)
-                    parent_proc.sub_network.add_process(proc)
+                parent_proc.sub_network.add_process(proc)
+
             elif l[0] == AJW:
                 old_ws, new_ws = l[1], l[2]
                 print "AJW: %s, %s" % (old_ws, new_ws)
