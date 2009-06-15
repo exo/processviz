@@ -2,7 +2,7 @@ import wx
 from canvas.demo import CanvasFrame
 from canvas.display import ChanEnd, Network, Process
 
-from logparser.parser import LogParser
+from logparser.parser import LogParserThread, EVT_LINE_AVAILABLE
 from pprint import pprint
 
 INS, AJW, START, END, CALL, OUTPUT, INPUT = 'INS AJW START END CALL OUTPUT INPUT'.split(' ')
@@ -11,22 +11,23 @@ class MyApp(wx.App):
     
     def OnInit (self):
         frame = CanvasFrame(parent=None)
-        frame.Bind(wx.EVT_IDLE, self.on_idle)
+        self.Bind(EVT_LINE_AVAILABLE, self.on_line)
         #self.setup_network()
         self._processes = {}
         self._shadowed_procs = {}
 
         # Log Parser.
-        self.lp = LogParser('commstime.log')
+        thread = LogParserThread(self, 'commstime.log')
+        thread.start()
 
-        # Setup top level process
-        l = self.lp.next()
+        # Setup top level process, don't know WS address yet (use 0)
+        #l = self.lp.next()
         proc = Process(x=0, y=0, name="TLP")
-        print "Initial is %s" % id(proc)
-        self._processes[l[1]] = proc
+        self._processes[0] = proc
         network = Network(x=0, y=0)
         network.add_process(proc)
         self._root_network = network
+        self._first_proc = True
 
         # Add network to frame & show.
         frame.network = network
@@ -34,9 +35,14 @@ class MyApp(wx.App):
         self._frame = frame
         return True
 
-    def on_idle(self, e):
-        l = self.lp.next()
-        if l:
+    def on_line(self, e):
+        # First line of file determines address of main process.
+        if self._first_proc:
+            self._processes[e.line[1]] = self._processes[0]
+            del self._processes[0]
+            self._first_proc = False
+        if e.line:
+            l = e.line
             if l[0] == INS:
                 # Instruction, store line number?
                 pass
@@ -61,6 +67,7 @@ class MyApp(wx.App):
                 # Shadow & preserve the outer proc, use a new process.
                 if par_count == 0:
                     if parent_proc_ws in self._shadowed_procs:
+                        pprint(self._root_network.structure())
                         raise Exception("Shadowing a shadowed proc - Reimplement me!")
                     self._shadowed_procs[parent_proc_ws] = parent_proc
                     proc = Process(x=0, y=0, name="", parent=parent_proc)
@@ -75,7 +82,6 @@ class MyApp(wx.App):
                 print "Start proc at %s, parent %s" % (proc_ws, parent_proc_ws)
                 self._processes[proc_ws] = proc
                 parent_proc.sub_network.add_process(proc)
-                pprint(self._root_network.structure())
             elif l[0] == END:
                 proc_ws = l[1]
                 proc = self._processes[proc_ws]

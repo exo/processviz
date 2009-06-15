@@ -1,16 +1,33 @@
+import wx
+import threading
+
+import wx.lib.newevent
+
 INS, AJW, START, END, CALL, OUTPUT, INPUT = 'INS AJW START END CALL OUTPUT INPUT'.split(' ')
 
-class LogParser (object):
-    
-    def __init__ (self, path):
-        self.file = open(path)
+# This creates a new Event class and a EVT binder function
+(DataAvailableEvent, EVT_LINE_AVAILABLE) = wx.lib.newevent.NewEvent()
 
-    def parse_list (self, data):
-        for line in data:
-            print parse(line)
+class LogParserThread (threading.Thread):
+    def __init__ (self, window, path):
+        threading.Thread.__init__(self)
+        self.lp = LogParser(path)
+        self.window = window
+
+    def run(self):
+        line = self.lp.next()
+        while line:
+            evt = DataAvailableEvent(line = line)
+            wx.PostEvent(self.window, evt)
+            line = self.lp.next()
+        self.lp.close()
+
+class LogParser (object):
+    def __init__ (self, path):
+        self.fp = open(path, 'r')
             
     def next (self):
-        line = self.file.readline()
+        line = self.fp.readline()
         if line:
             return self.parse(line)
         else:
@@ -46,4 +63,5 @@ class LogParser (object):
         else:
             raise Exception("Unknown op type '%s'" % cmd)
 
-#parse_list(open('commstime.log'))
+    def close (self):
+        self.fp.close()
