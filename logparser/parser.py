@@ -1,6 +1,6 @@
 import wx
 import threading
-
+import time
 import wx.lib.newevent
 
 INS, AJW, START, END, CALL, OUTPUT, INPUT = 'INS AJW START END CALL OUTPUT INPUT'.split(' ')
@@ -20,6 +20,7 @@ class LogParserThread (threading.Thread):
             evt = DataAvailableEvent(line = line)
             wx.PostEvent(self.window, evt)
             line = self.lp.next()
+            time.sleep(1)
         self.lp.close()
 
 class LogParser (object):

@@ -12,9 +12,11 @@ class MyApp(wx.App):
     def OnInit (self):
         frame = CanvasFrame(parent=None)
         self.Bind(EVT_LINE_AVAILABLE, self.on_line)
+        self.Bind(wx.EVT_KEY_DOWN, self.on_key_down)
         #self.setup_network()
         self._processes = {}
         self._shadowed_procs = {}
+        self._line_no = 0
 
         # Log Parser.
         thread = LogParserThread(self, 'commstime.log')
@@ -35,6 +37,12 @@ class MyApp(wx.App):
         self._frame = frame
         return True
 
+    def on_key_down (self, e):
+        k = e.GetKeyCode()
+        if k == wx.WXK_LEFT:
+            print "Left key"
+        e.Skip()
+
     def on_line(self, e):
         # First line of file determines address of main process.
         if self._first_proc:
@@ -43,8 +51,12 @@ class MyApp(wx.App):
             self._first_proc = False
         if e.line:
             l = e.line
+            self._line_number += 1
             if l[0] == INS:
                 # Instruction, store line number?
+                address = l[1]
+                if address in self._processes:
+                    self._processes[address].src_pos = l[3]
                 pass
             elif l[0] == INPUT:
                 # Channel input.
@@ -68,13 +80,15 @@ class MyApp(wx.App):
                 if par_count == 0:
                     if parent_proc_ws in self._shadowed_procs:
                         pprint(self._root_network.structure())
-                        raise Exception("Shadowing a shadowed proc - Reimplement me!")
+                        raise Exception("Shadowing a shadowed proc")
                     self._shadowed_procs[parent_proc_ws] = parent_proc
+                    parent_proc.ws = parent_proc_ws
                     proc = Process(x=0, y=0, name="", parent=parent_proc)
+                    parent_proc.par_increment() # Include shadowed process.
                     print "Start proc at %s, parent shadowed" % (parent_proc_ws)
                     self._processes[parent_proc_ws] = proc
                     parent_proc.sub_network.add_process(proc)
-                    print "Added %s to %s" % (parent_proc_ws, parent_proc.name)
+                    print "Added process %s to %s" % (parent_proc_ws, parent_proc.name)
 
                 # Add the newly started process.
                 proc_ws = l[2]
@@ -83,32 +97,26 @@ class MyApp(wx.App):
                 self._processes[proc_ws] = proc
                 parent_proc.sub_network.add_process(proc)
             elif l[0] == END:
-                proc_ws = l[1]
-                proc = self._processes[proc_ws]
+                ws = l[1]
+                print "End for %s" % l[1]
+                proc = self._processes[ws]
                 parent = proc.parent
-                parent.par_decrement()
+                if parent.par_decrement() == 0:
+                    # Unshadow
+                    self._processes[parent.ws] = self._shadowed_procs[parent.ws]
+                    del self._shadowed_procs[parent.ws]
+
                 # Remove proc from display network.
                 parent.sub_network.remove_process(proc)
                 # Remove proc from ws tracking list.
-                del self._processes[proc_ws]
+                del self._processes[ws]
+
             elif l[0] == AJW:
                 old_ws, new_ws = l[1], l[2]
                 print "AJW: %s, %s" % (old_ws, new_ws)
-                if new_ws in self._shadowed_procs:
-                    proc = self._processes[old_ws]
-                    parent = proc.parent
-                    parent.par_decrement()
-                    # Remove proc from display network.
-                    parent.sub_network.remove_process(proc)
-                    # Remove proc from ws tracking list.
-                    del self._processes[old_ws]
-                    # Bring forward the shadowed parent, the child has ended.
-                    self._processes[new_ws] = self._shadowed_procs[new_ws]
-                    del self._shadowed_procs[new_ws]
-                else:
-                    # Ordinary orkspace adjustment.
-                    self._processes[new_ws] = self._processes[old_ws]
-                    del self._processes[old_ws]
+                # Ordinary workspace adjustment.
+                self._processes[new_ws] = self._processes[old_ws]
+                del self._processes[old_ws]
             elif l[0] == CALL:
                 ws, proc_name = l[1], l[2]
                 print "Setting name of %s to %s" % (ws, proc_name)
