@@ -65,35 +65,36 @@ class MyApp(wx.App):
                 # Channel output.
                 pass
             elif l[0] == START:
-                parent_proc_ws = l[1]
-                if parent_proc_ws in self._shadowed_procs:
-                    parent_proc = self._shadowed_procs[parent_proc_ws]
-                else:
-                    parent_proc = self._processes[parent_proc_ws]
-                par_count = parent_proc.par_increment()
+                parent_ws = l[1]
 
-                # We'll need to add a sub network, make sure it exists.
+                # Get the parent proc.
+                if parent_ws in self._shadowed_procs:
+                    parent_proc = self._shadowed_procs[parent_ws]
+                else:
+                    parent_proc = self._processes[parent_ws]
+
+                # Ensure a sub network exists.
                 if parent_proc.sub_network is None:
                     parent_proc.sub_network = Network(x=parent_proc.x, y=parent_proc.y)
 
-                # Shadow & preserve the outer proc, use a new process.
-                if par_count == 0:
-                    if parent_proc_ws in self._shadowed_procs:
+                # Start a new proc, shadow & preserve the outer proc
+                if parent_proc.par_increment() == 1:
+                    if parent_ws in self._shadowed_procs:
                         pprint(self._root_network.structure())
                         raise Exception("Shadowing a shadowed proc")
-                    self._shadowed_procs[parent_proc_ws] = parent_proc
-                    parent_proc.ws = parent_proc_ws
+                    self._shadowed_procs[parent_ws] = parent_proc
+                    parent_proc.ws = parent_ws
                     proc = Process(x=0, y=0, name="", parent=parent_proc)
                     parent_proc.par_increment() # Include shadowed process.
-                    print "Start proc at %s, parent shadowed" % (parent_proc_ws)
-                    self._processes[parent_proc_ws] = proc
+                    print "Start proc at %s, parent shadowed" % (parent_ws)
+                    self._processes[parent_ws] = proc
                     parent_proc.sub_network.add_process(proc)
-                    print "Added process %s to %s" % (parent_proc_ws, parent_proc.name)
+                    print "Added process %s to %s" % (parent_ws, parent_proc.name)
 
                 # Add the newly started process.
                 proc_ws = l[2]
                 proc = Process(x=0, y=0, name="", parent=parent_proc)
-                print "Start proc at %s, parent %s" % (proc_ws, parent_proc_ws)
+                print "Start proc at %s, parent %s" % (proc_ws, parent_ws)
                 self._processes[proc_ws] = proc
                 parent_proc.sub_network.add_process(proc)
             elif l[0] == END:

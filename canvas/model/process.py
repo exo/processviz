@@ -34,9 +34,8 @@ class Process (object):
     sub_network = property(get_sub_network, set_sub_network)
 
     def par_increment (self):
-        tmp = self._par_count
         self._par_count += 1
-        return tmp # return previous so that we know 0->1
+        return self._par_count
 
     def par_decrement (self):
         self._par_count -= 1
