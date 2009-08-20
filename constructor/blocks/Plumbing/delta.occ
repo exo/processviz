@@ -1,0 +1,28 @@
+name: delta
+input:
+ - name: in
+   type: generic
+   desc: Input values to be duplicated
+
+output:
+ - name: out.1
+   type: generic
+   desc: First output stream copied from input
+ - name: out.2
+   type: generic
+   desc: Second output stream copied from input
+
+desc: >
+  A process which copies the values it receives on its onput channel 
+  to the output channels. Both output channels have to be serviced
+  before the next input is read.
+--- Code starts here 
+PROC delta(CHAN $TYPE in?, CHAN $TYPE out.1!, out.2!)
+  WHILE TRUE
+    $TYPE val:
+    SEQ
+      in ? val
+      PAR
+        out.1 ! val
+        out.2 ! val
+:

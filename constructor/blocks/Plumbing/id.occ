@@ -1,0 +1,19 @@
+name: id
+input:
+ - name: in
+   type: generic
+   desc: Input values to be buffered
+output:
+ - name: out
+   type: generic
+   desc: Last value recieved by the id process.
+desc: >
+  A process that provides a one slot buffer for incoming values.
+--- Code starts here 
+PROC id (CHAN $TYPE in?, CHAN $TYPE out!)
+  WHILE TRUE
+    $TYPE val:
+    SEQ
+      in ? val
+      out ! val
+:
