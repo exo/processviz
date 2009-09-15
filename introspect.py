@@ -1,5 +1,5 @@
 import wx
-from canvas.demo import CanvasFrame
+from canvas.common import CanvasFrame
 from canvas.display import ChanEnd, Network, Process
 
 from logparser.parser import LogParserThread, EVT_LINE_AVAILABLE
@@ -19,7 +19,7 @@ class MyApp(wx.App):
         self._line_no = 0
 
         # Log Parser.
-        thread = LogParserThread(self, 'commstime.log')
+        thread = LogParserThread(self, 'test_data/commstime.log')
         thread.start()
 
         # Setup top level process, don't know WS address yet (use 0)
@@ -51,7 +51,7 @@ class MyApp(wx.App):
             self._first_proc = False
         if e.line:
             l = e.line
-            self._line_number += 1
+            self._line_no += 1
             if l[0] == INS:
                 # Instruction, store line number?
                 address = l[1]
