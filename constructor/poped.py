@@ -16,7 +16,10 @@ log = logging.getLogger("popedLogger");
 # Pieces of POPed
 from Config import Config
 from BlockSource import BlockSource
-from ProcessDiagram import ProcessDiagram, BlockDropData
+#from OGLProcessDiagram import ProcessDiagram, BlockDropData
+
+from canvas.common import CanvasPanel, BlockDropData
+
 from Templates import renderTemplate
 
 class Frame(wx.Frame):
@@ -45,8 +48,8 @@ class Frame(wx.Frame):
 		self._mgr.AddPane(info, wx.BOTTOM, 'Information')
 		
 		# Diagram
-		diagram = ProcessDiagram(self)
-		self._mgr.AddPane(diagram.GetCanvas(), wx.CENTER)
+		diagram = CanvasPanel(self)
+		self._mgr.AddPane(diagram, wx.CENTER)
 		
 		# Toolbox
 		toolbox = self.toolbox = self.CreateToolbox()

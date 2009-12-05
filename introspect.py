@@ -32,7 +32,7 @@ class MyApp(wx.App):
         self._first_proc = True
 
         # Add network to frame & show.
-        frame.network = network
+        frame.panel.network = network
         frame.Show(True)
         self._frame = frame
         return True
