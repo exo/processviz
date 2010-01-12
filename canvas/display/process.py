@@ -145,13 +145,13 @@ class Process (model.Process):
 
     def add_chan_ends (self, chan_ends):
         for c in chan_ends:
-            self.add_chan_end(c[0], c[1], c[2])
+            self.add_chan_end(c['name'], c['direction'], c['type'])
 
     def add_chan_end (self, name, direction, datatype):
         if direction == 'input':
-            self.input_chans.append(ChanEnd(self, name, direction, datatype))
+            self.input_chans.append(ChanEnd(name, direction, datatype))
         elif direction == 'output':
-            self.output_chans.append(ChanEnd(self, name, direction, datatype))
+            self.output_chans.append(ChanEnd(name, direction, datatype))
         #TODO: Error out here if the type is unknown.
 
     def structure (self):

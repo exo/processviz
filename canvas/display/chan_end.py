@@ -4,6 +4,9 @@ from canvas.util import AttrDict, MeasuringContext
 import wx
 from canvas import model
 
+import logging
+log = logging.getLogger("popedLogger");
+
 class ChanEnd (model.ChanEnd):
     
     def __init__ (self, name, direction, datatype):
@@ -22,7 +25,45 @@ class ChanEnd (model.ChanEnd):
             offset          = 1, # Relation of channel end to text?
         )
 
+    def get_bounds (self, x, y):
+        """Return the bounding box (x0, y0, x1, y1), given the current position"""
+        (w, h) = self.size
+        style = self.style
+        if self.direction == 'input':
+            x0 = x - style.radius
+            y0 = y - style.radius
+            x1, y1 = x + w, y + (h/2)
+            if style.shadow:
+                x0 -= style.shadow_offset
+                y0 -= style.shadow_offset
+        elif self.direction == 'output':
+            x0 = x - w
+            y0 = y - (h/2)
+            x1, y1 = x + style.radius, y + style.radius
+            if style.shadow:
+                x1 += style.shadow_offset
+                y1 += style.shadow_offset
+        return (x0, y0, x1, y1)
+
+    def draw_bounds (self, gc, x, y):
+        """Debug function to draw a box showing the channel end's outline"""
+        (x0, y0, x1, y1)= self.get_bounds(x, y)
+        w, h = x1 - x0, y1 - y0
+        p = gc.CreatePath()
+        p.AddRectangle(x0, y0, w, h)
+        gc.SetPen(wx.Pen(colour=(0,0,0), width=1))
+        gc.DrawPath(p)
+
+    def get_size (self):
+        (w, h) = self.get_label_size()
+        w += self.style.pad     # Compensate for padding between label & end.
+        w += (self.style.radius*2)
+        h = max(h, (self.style.radius*2))   # Biggest of text height, end diameter
+        return (w, h)
+    size = property(get_size)
+
     def get_label_size (self):
+        """Return the size (w, h) of this channel's text label"""
         # Calculate size of channel end label inclusive of padding.
         # TODO: This blows up on OS X right now, but should work.
         # gc = wx.GraphicsContext.CreateMeasuringContext()

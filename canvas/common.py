@@ -105,24 +105,23 @@ class CanvasDropTarget(wx.PyDropTarget):
     def OnLeave(self): pass
     def OnDrop(self, x, y): pass
     def OnDragOver(self, x, y, d): return d
+
     def OnData (self, x, y, d):
-        #print "OnData", x, y, d
         if self.GetData():
             data = self.drop_data.GetDataHere()
             data = pickle.loads(data)
             print "The pickled data is %s" % data
             print "Name should be %s" % data['name']
 
-            input_ends = []
-            output_ends = []
             for c in data['input']:
-                print "Chanend is %s" % c
-                input_ends.append(ChanEnd(c['name'], 'input', c['type']))
+                c['direction'] = 'input'
             for c in data['output']:
-                output_ends.append(ChanEnd(c['name'], 'output', c['type']))
-            #print type(data)
+                c['direction'] = 'output'
+            chan_ends = data['input'] + data['output']
+
             canvas = self.canvas
-            p = Process (0, 0, data['name'], input_chans=input_ends, output_chans=output_ends)
+            p = Process (x, y, data['name'])
+            p.add_chan_ends(chan_ends)
             log.debug("Adding process: %s, %s, %s", data['name'], data['input'], data['output'])
             canvas.network.add_process(p)
             canvas.Refresh()
