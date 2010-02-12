@@ -6,8 +6,8 @@ from chan_end import ChanEnd
 from canvas.util import AttrDict, MeasuringContext
 
 class Process (model.Process):
-    def __init__ (self, x, y, name, params=None, input_chans=[], output_chans=[], parent=None, sub_network=None):
-        model.Process.__init__(self, name, params,input_chans, output_chans, parent, sub_network)
+    def __init__ (self, x, y, name, params=None, parent=None, sub_network=None):
+        model.Process.__init__(self, name, params, parent, sub_network)
         self._x, self._y = x, y
         
         # Process style, will end up in YAML at some point.
@@ -79,7 +79,7 @@ class Process (model.Process):
         return (w, h)
     
     def max_chan_end_size (self):
-        if len(self.input_chans + self.output_chans) > 0:
+        if len(self.input_chans) + len(self.output_chans) > 0:
             sizes = [c.size for c in (self.input_chans + self.output_chans)]
             max_w = max([s[0] for s in sizes])
             max_h = max([s[1] for s in sizes])
