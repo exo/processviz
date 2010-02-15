@@ -45,6 +45,14 @@ class ChanEnd (model.ChanEnd):
                 y1 += style.shadow_offset
         return (x0, y0, x1, y1)
 
+    def hit_test (self, end_x, end_y, x, y):
+        min_x, min_y, max_x, max_y = self.get_bounds(end_x, end_y)
+        if max_x > x > min_x and max_y > y > min_y:
+            # Hit within channel end.
+            print "Channel end hit"
+            return dict(hit=self, offset=(x - end_x, y - end_y))
+        return None
+
     def draw_bounds (self, gc, x, y):
         """Debug function to draw a box showing the channel end's outline"""
         (x0, y0, x1, y1)= self.get_bounds(x, y)

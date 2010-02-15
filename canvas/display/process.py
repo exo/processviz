@@ -133,6 +133,23 @@ class Process (model.Process):
         gc.DrawText(self.name, text_x, text_y)
     
     def hit_test (self, x, y):
+        # Hit test channel ends.
+        result = None
+        for c in (self.input_chans + self.output_chans):
+            c_x = self.x
+            c_y = self.y + self.size[1] - self.style.h_pad
+            for c in self.input_chans:
+                result = c.hit_test(c_x, c_y, x, y)
+                c_y -= (self.max_chan_end_size()[1] + self.style.v_pad)
+            c_x = self.x + self.size[0]
+            c_y = self.y + self.size[1] - self.style.h_pad
+            for c in self.output_chans:
+                result = c.hit_test(c_x, c_y, x, y)
+                c_y -= (self.max_chan_end_size()[1] + self.style.v_pad)
+        if result is not None:
+            return result
+
+        # Hit test process.
         min_x, min_y, max_x, max_y = self.bounds
         if max_x > x > min_x and max_y > y > min_y:
             # Hit within process
