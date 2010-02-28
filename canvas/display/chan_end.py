@@ -24,10 +24,12 @@ class ChanEnd (model.ChanEnd):
             pad             = 10,
             offset          = 1, # Relation of channel end to text?
         )
+        self.x, self.y = 0, 0
 
-    def get_bounds (self, x, y):
+    def get_bounds (self):
         """Return the bounding box (x0, y0, x1, y1), given the current position"""
         (w, h) = self.size
+        x, y = self.x, self.y
         style = self.style
         if self.direction == 'input':
             x0 = x - style.radius
@@ -44,18 +46,20 @@ class ChanEnd (model.ChanEnd):
                 x1 += style.shadow_offset
                 y1 += style.shadow_offset
         return (x0, y0, x1, y1)
+    bounds = property (get_bounds)
 
-    def hit_test (self, end_x, end_y, x, y):
-        min_x, min_y, max_x, max_y = self.get_bounds(end_x, end_y)
+    def hit_test (self, x, y):
+        min_x, min_y, max_x, max_y = self.bounds
         if max_x > x > min_x and max_y > y > min_y:
             # Hit within channel end.
-            print "Channel end hit"
-            return dict(hit=self, offset=(x - end_x, y - end_y))
-        return None
+            print "Positive hit within channel end"
+            return dict(hit=self, offset=(x - self.x, y - self.y))
+        else:
+            return None
 
-    def draw_bounds (self, gc, x, y):
+    def draw_bounds (self, gc):
         """Debug function to draw a box showing the channel end's outline"""
-        (x0, y0, x1, y1)= self.get_bounds(x, y)
+        (x0, y0, x1, y1)= self.bounds
         w, h = x1 - x0, y1 - y0
         p = gc.CreatePath()
         p.AddRectangle(x0, y0, w, h)
@@ -82,7 +86,8 @@ class ChanEnd (model.ChanEnd):
         w += (style.pad * 2)
         return (w, h)
 
-    def draw_label (self, gc, x, y):
+    def draw_label (self, gc):
+        x, y = self.x, self.y
         if self.direction == 'input':
             x += self.style.pad
         elif self.direction == 'output':
@@ -92,8 +97,8 @@ class ChanEnd (model.ChanEnd):
         gc.SetFont(font)
         gc.DrawText(self.name, x, (y - self.get_label_size()[1]/2))
     
-    def draw_end (self, gc, x, y):
-        style = self.style
+    def draw_end (self, gc):
+        style, x, y = self.style, self.x, self.y
         if self.direction == 'output' and style.shadow:
             path = gc.CreatePath()
             path.AddCircle(x + style.shadow_offset, y + style.shadow_offset, style.radius)
@@ -111,6 +116,9 @@ class ChanEnd (model.ChanEnd):
     size = property(get_size)
 
     def on_paint (self, gc, location):
-        (x, y) = location
-        self.draw_label(gc, x, y)
-        self.draw_end(gc, x, y)
+        self.x, self.y = location
+        self.draw_label(gc)
+        self.draw_end(gc)
+
+    def on_motion (self, event, transform, offset):
+        return

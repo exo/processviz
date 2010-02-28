@@ -1,5 +1,5 @@
 import wx
-from display import Process, Network, ChanEnd
+from display import Process, Network, ChanEnd, Channel
 from util import AttrDict
 
 # Pickle
@@ -26,7 +26,8 @@ class CanvasPanel (wx.Panel):
         # Properties
         self._network = Network(x=0, y=0) # Root network.
 
-        self._mouse_down = None
+        self._selected = None
+        self._chan_start_point = None
 
         # Events
         self.Bind(wx.EVT_PAINT, self.on_paint)
@@ -60,31 +61,47 @@ class CanvasPanel (wx.Panel):
             print "No network"
     
     def on_motion (self, event):
-        if self._mouse_down is not None:
+        if self._selected is not None:
             # Get all of the click data.
-            hit = self._mouse_down
+            hit = self._selected
             p = hit['hit']
-            tmp_x = (event.X - hit['transform'][0]) - hit['offset'][0]
-            tmp_y = (event.Y - hit['transform'][1]) - hit['offset'][1]
-            if tmp_x < 0:
-                p.x = 0
-            else: 
-                p.x = tmp_x
-            if tmp_y < 0:
-                p.y = 0
-            else:
-                p.y = tmp_y
+            p.on_motion(event, hit['transform'], hit['offset'])
             self.Refresh()
 
     def on_left_down (self, event):
         selection = self._network.hit_test(event.X, event.Y)
+        print "Result of hit test was %s" % selection
         if selection is not None:
-            self._mouse_down = selection
+            self._selected = selection
     
     def on_left_up (self, event):
-        if self._mouse_down:
-            self._mouse_down = None
-    
+        if self._selected:
+            if isinstance(self._selected['hit'], ChanEnd):
+                print "Selected a channel end"
+                if self._chan_start_point is not None:
+                    if self._chan_start_point.datatype == self._selected['hit'].datatype:
+                        # Types match, work out which way round the channel is.
+                        print "Creating a channel."
+                        if self._chan_start_point.direction == 'output':
+                            src = self._chan_start_point
+                            dest = self._selected['hit']
+                        else:
+                            src = self._selected['hit']
+                            dest = self._chan_start_point
+                        self._network.add_channel(Channel('bar', src.datatype, src, dest))
+                        self._chan_start_point = None
+                        self.Refresh()
+                    else:
+                        # Types don't match, abort.
+                        print "Channel types don't match. Cancelling selection"
+                        self._chan_start_point = None
+                else:
+                    # No ends currently selected, start a chan creation op.
+                    print "In channel creation mode"
+                    self._chan_start_point = self._selected['hit']
+            # Cancel out the current selection.
+            self._selected = None
+
     def draw_background(self, gc):
         (w, h) = self.GetSize()
         path = gc.CreatePath()

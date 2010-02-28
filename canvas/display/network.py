@@ -43,6 +43,8 @@ class Network (model.Network):
         self.draw_background(gc)
         for p in self.processes:
             p.on_paint(gc)
+        for c in self.channels:
+            c.on_paint(gc)
         gc.PopState()
 
     def draw_background(self, gc):

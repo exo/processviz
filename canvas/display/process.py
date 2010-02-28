@@ -35,6 +35,19 @@ class Process (model.Process):
         self._x = x
         if self._sub_network:
             self._sub_network.x = x+20
+
+        # Update channel end positions.
+        x = self.x
+        y = self.y + self.size[1] - self.style.h_pad
+        for c in self.input_chans:
+            c.x, c.y = x, y
+            y -= (self.max_chan_end_size()[1] + self.style.v_pad)
+        x = self.x + self.size[0]
+        y = self.y + self.size[1] - self.style.h_pad
+        for c in self.output_chans:
+            c.x, c.y = x, y
+            y -= (self.max_chan_end_size()[1] + self.style.v_pad)
+
     x = property(get_x, set_x)
 
     def get_y (self): return self._y
@@ -123,6 +136,7 @@ class Process (model.Process):
         #self._path = path - for hit testing.
         
     def draw_name (self, gc):
+        """Draw the name label for this process"""
         style = self.style
         (w, h) = self.size
         font = gc.CreateFont(wx.Font(pointSize=style.main_label, family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL), style.text_colour)
@@ -133,21 +147,13 @@ class Process (model.Process):
         gc.DrawText(self.name, text_x, text_y)
     
     def hit_test (self, x, y):
+        """Hit test the process and its channel ends for a given hit"""
         # Hit test channel ends.
         result = None
-        for c in (self.input_chans + self.output_chans):
-            c_x = self.x
-            c_y = self.y + self.size[1] - self.style.h_pad
-            for c in self.input_chans:
-                result = c.hit_test(c_x, c_y, x, y)
-                c_y -= (self.max_chan_end_size()[1] + self.style.v_pad)
-            c_x = self.x + self.size[0]
-            c_y = self.y + self.size[1] - self.style.h_pad
-            for c in self.output_chans:
-                result = c.hit_test(c_x, c_y, x, y)
-                c_y -= (self.max_chan_end_size()[1] + self.style.v_pad)
-        if result is not None:
-            return result
+        for c in self.input_chans + self.output_chans:
+            result = c.hit_test(x, y)
+            if result is not None:
+                return result
 
         # Hit test process.
         min_x, min_y, max_x, max_y = self.bounds
@@ -160,11 +166,26 @@ class Process (model.Process):
             return dict(hit=self, offset=(x - self.x, y - self.y))
         return None
 
+    def on_motion (self, event, transform, offset):
+        """Move the process in response to mouse movements"""
+        tmp_x = (event.X - transform[0]) - offset[0]
+        tmp_y = (event.Y - transform[1]) - offset[1]
+        if tmp_x < 0:
+            self.x = 0
+        else:
+            self.x = tmp_x
+        if tmp_y < 0:
+            self.y = 0
+        else:
+            self.y = tmp_y
+
     def add_chan_ends (self, chan_ends):
+        """Add a list of new channel ends to this process"""
         for c in chan_ends:
             self.add_chan_end(c['name'], c['direction'], c['type'])
 
     def add_chan_end (self, name, direction, datatype):
+        """Add a single new channel end to this process"""
         if direction == 'input':
             self.input_chans.append(ChanEnd(name, direction, datatype))
         elif direction == 'output':
