@@ -5,9 +5,9 @@ import sys
 import wx, wx.aui, wx.html
 
 try:
-	import cPickle as pickle
+    import cPickle as pickle
 except ImportError:
-	import pickle
+    import pickle
 
 import logging
 log = logging.getLogger("popedLogger");

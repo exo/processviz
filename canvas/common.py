@@ -70,7 +70,6 @@ class CanvasPanel (wx.Panel):
 
     def on_left_down (self, event):
         selection = self._network.hit_test(event.X, event.Y)
-        print "Result of hit test was %s" % selection
         if selection is not None:
             self._selected = selection
 

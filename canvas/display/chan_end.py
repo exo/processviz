@@ -52,7 +52,6 @@ class ChanEnd (model.ChanEnd):
         min_x, min_y, max_x, max_y = self.bounds
         if max_x > x > min_x and max_y > y > min_y:
             # Hit within channel end.
-            print "Positive hit within channel end"
             return dict(hit=self, offset=(x - self.x, y - self.y))
         else:
             return None
