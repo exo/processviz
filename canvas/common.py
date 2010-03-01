@@ -73,13 +73,21 @@ class CanvasPanel (wx.Panel):
         print "Result of hit test was %s" % selection
         if selection is not None:
             self._selected = selection
-    
+
+        # Reset channel creation mode if we expected to find a channel end.
+        if self._chan_start_point is not None:
+            if self._selected is None or not isinstance(self._selected['hit'], ChanEnd):
+                print "Reset channel creation mode"
+                self._chan_start_point = None
+
     def on_left_up (self, event):
         if self._selected:
             if isinstance(self._selected['hit'], ChanEnd):
                 print "Selected a channel end"
                 if self._chan_start_point is not None:
-                    if self._chan_start_point.datatype == self._selected['hit'].datatype:
+                    types_match = self._chan_start_point.datatype == self._selected['hit'].datatype
+                    different_directions = self._chan_start_point.direction != self._selected['hit'].direction
+                    if types_match and different_directions:
                         # Types match, work out which way round the channel is.
                         print "Creating a channel."
                         if self._chan_start_point.direction == 'output':
@@ -93,7 +101,7 @@ class CanvasPanel (wx.Panel):
                         self.Refresh()
                     else:
                         # Types don't match, abort.
-                        print "Channel types don't match. Cancelling selection"
+                        print "Channel types don't match, or directions do. Cancelling selection"
                         self._chan_start_point = None
                 else:
                     # No ends currently selected, start a chan creation op.
