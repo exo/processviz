@@ -82,19 +82,21 @@ class CanvasPanel (wx.Panel):
         # Reset channel creation mode if we expected to find a channel end.
         if self._chan_start_point is not None:
             if self._selected is None or not isinstance(self._selected['hit'], ChanEnd):
-                print "Reset channel creation mode"
+                log.debug("Reset channel creation mode")
+                self._chan_start_point.selected = False
                 self._chan_start_point = None
+                self.Refresh()
 
     def on_left_up (self, event):
         if self._selected:
             if isinstance(self._selected['hit'], ChanEnd):
-                print "Selected a channel end"
+                log.debug("Selected a channel end")
                 if self._chan_start_point is not None:
                     types_match = self._chan_start_point.datatype == self._selected['hit'].datatype
                     different_directions = self._chan_start_point.direction != self._selected['hit'].direction
                     if types_match and different_directions:
                         # Types match, work out which way round the channel is.
-                        print "Creating a channel."
+                        log.debug("Creating a channel.")
                         if self._chan_start_point.direction == 'output':
                             src = self._chan_start_point
                             dest = self._selected['hit']
@@ -102,16 +104,22 @@ class CanvasPanel (wx.Panel):
                             src = self._selected['hit']
                             dest = self._chan_start_point
                         self._network.add_channel(Channel('bar', src.datatype, src, dest))
+                        self._chan_start_point.selected = False
                         self._chan_start_point = None
                         self.Refresh()
                     else:
                         # Types don't match, abort.
-                        print "Channel types don't match, or directions do. Cancelling selection"
+                        log.debug("Channel types don't match, or directions do. Cancelling selection")
+                        self._chan_start_point.selected = False
                         self._chan_start_point = None
+                        self.Refresh()
                 else:
                     # No ends currently selected, start a chan creation op.
-                    print "In channel creation mode"
-                    self._chan_start_point = self._selected['hit']
+                    log.debug("In channel creation mode")
+                    chanend = self._selected['hit']
+                    self._chan_start_point = chanend
+                    chanend.selected = True
+                    self.Refresh()
             # Cancel out the current selection.
             self._selected = None
 
@@ -140,8 +148,6 @@ class CanvasDropTarget(wx.PyDropTarget):
         if self.GetData():
             data = self.drop_data.GetDataHere()
             data = pickle.loads(data)
-            print "The pickled data is %s" % data
-            print "Name should be %s" % data['name']
 
             for c in data['input']:
                 c['direction'] = 'input'
@@ -155,8 +161,6 @@ class CanvasDropTarget(wx.PyDropTarget):
             log.debug("Adding process: %s, %s, %s", data['name'], data['input'], data['output'])
             canvas.network.add_process(p)
             canvas.Refresh()
-            #self.diagram.GetCanvas().Refresh()
-        log.debug("Completed OnData for Canvas droptarget.")
         return d
 
 class BlockDropData(wx.PyDataObjectSimple):

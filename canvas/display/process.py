@@ -9,7 +9,8 @@ class Process (model.Process):
     def __init__ (self, x, y, name, params=None, parent=None, sub_network=None):
         model.Process.__init__(self, name, params, parent, sub_network)
         self._x, self._y = x, y
-        
+        self._selected = False
+
         # Process style, will end up in YAML at some point.
         self.style = AttrDict()
         s = self.style
@@ -30,6 +31,13 @@ class Process (model.Process):
         s.expander_size   = 6                # Expander widget size.
         s.expander_offset = 7
 
+    def get_selected (self):
+        return self._selected
+
+    def set_selected (self, selected):
+        self._selected = selected
+
+    selected = property (get_selected, set_selected)
 
     def get_x (self): return self._x
     def set_x (self, x):
@@ -131,7 +139,10 @@ class Process (model.Process):
         path = gc.CreatePath()
         path.AddRectangle(self.x, self.y, w, h)
         gc.SetPen(wx.Pen(colour=style.border, width=1))
-        brush = gc.CreateLinearGradientBrush(self.x, self.y, self.x, self.y + h, style.top, style.bottom)
+        if self.selected:
+            brush = gc.CreateLinearGradientBrush(self.x, self.y, self.x, self.y + h, style.top, style.bottom_hi)
+        else:
+            brush = gc.CreateLinearGradientBrush(self.x, self.y, self.x, self.y + h, style.top, style.bottom)
         gc.SetBrush(brush)
         gc.DrawPath(path)
         #self._path = path - for hit testing.

@@ -26,6 +26,15 @@ class ChanEnd (model.ChanEnd):
         s.offset          = 1 # Relation of channel end to text?
 
         self.x, self.y = 0, 0
+        self._selected = False
+
+    def get_selected (self):
+        return self._selected
+
+    def set_selected (self, selected):
+        self._selected = selected
+
+    selected = property (get_selected, set_selected)
 
     def get_bounds (self):
         """Return the bounding box (x0, y0, x1, y1), given the current position"""
@@ -108,7 +117,10 @@ class ChanEnd (model.ChanEnd):
         path = gc.CreatePath()
         path.AddCircle(x, y, self.style.radius)
         gc.SetPen(wx.Pen(colour=self.style.border, width=1))
-        gc.SetBrush(gc.CreateBrush(wx.Brush(self.style.fill)))
+        if self.selected:
+            gc.SetBrush(gc.CreateBrush(wx.Brush(self.style.hilight)))
+        else:
+            gc.SetBrush(gc.CreateBrush(wx.Brush(self.style.fill)))
         gc.DrawPath(path)
 
     def get_size (self):
