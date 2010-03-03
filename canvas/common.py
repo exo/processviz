@@ -25,9 +25,9 @@ class CanvasPanel (wx.Panel):
         wx.Panel.__init__(self, frame, -1)
         # Properties
         self._network = Network(x=0, y=0) # Root network.
-
         self._selected = None
         self._chan_start_point = None
+        self._filename = None
 
         # Events
         self.Bind(wx.EVT_PAINT, self.on_paint)
@@ -44,6 +44,13 @@ class CanvasPanel (wx.Panel):
     def get_network(self): return self._network
     def set_network(self, n): self._network = n
     network = property(get_network, set_network)
+
+    def get_filename (self):
+        return self._filename
+
+    def set_filename (self, filename):
+        self._filename = filename
+    filename = property(get_filename, set_filename)
 
     def on_paint (self, event):
         dc = wx.PaintDC(self)

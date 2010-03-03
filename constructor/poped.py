@@ -2,6 +2,7 @@
 # Part of POPed
 
 import sys
+import os
 import wx, wx.aui, wx.html
 
 try:
@@ -59,8 +60,8 @@ class Frame(wx.Frame):
         self._mgr.AddPane(info, wx.BOTTOM, 'Information')
 
         # Diagram
-        diagram = CanvasPanel(self)
-        self._mgr.AddPane(diagram, wx.CENTER)
+        self._diagram = CanvasPanel(self)
+        self._mgr.AddPane(self.diagram, wx.CENTER)
 
         # Toolbox
         toolbox = self.toolbox = self.CreateToolbox()
@@ -78,11 +79,39 @@ class Frame(wx.Frame):
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.BlockChanged)
         log.debug("Finished initialising main wxFrame and AUIManager panes.")
 
+    def get_diagram (self):
+        return self._diagram
+    diagram = property(get_diagram)
+
     def on_open_item (self, event):
-        print "Open"
+        wildcard = "Process Network (*.processes)|*.processes"
+        dialog = wx.FileDialog(None, "Choose file to open", os.getcwd(), "", wildcard, wx.OPEN)
+        if dialog.ShowModal() == wx.ID_OK:
+            filename = dialog.GetPath()
+            input = open(filename, 'rb')
+            self.diagram.network = pickle.load(input)
+            self.diagram.filename = filename
+            input.close()
+            self.diagram.Refresh()
+        dialog.Destroy()
 
     def on_save_item (self, event):
-        print "Save"
+        if self.diagram.filename is None:
+            wildcard = "Process Network (*.processes)|*.processes"
+            dialog = wx.FileDialog(None, "Save File as", os.getcwd(), "", wildcard, wx.SAVE)
+            if dialog.ShowModal() == wx.ID_OK:
+                filename = dialog.GetPath()
+                log.debug("Saving new file as %s" % filename)
+                output = open(filename, 'wb')
+                pickle.dump(self.diagram.network, output, -1)
+                output.close
+                self.diagram.filename = filename
+        else:
+            log.debug("Saving existing file %s" % self.diagram.filename)
+            print (type(self.diagram.filename))
+            output = open(self.diagram.filename, 'wb')
+            pickle.dump(self.diagram.network, output, -1)
+            output.close
 
     def BlockChanged(self, event):
         self.DisplayInfoPage(
