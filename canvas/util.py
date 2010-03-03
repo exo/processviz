@@ -1,12 +1,18 @@
 import wx
 
+# This AttrDict implementation doesn't support Pickling.
+#class AttrDict(dict):
+#    def __init__(self, *args, **kwargs):
+#        dict.__init__(self, *args, **kwargs)
+#    def __getattribute__(self, attr):
+#        return self[attr]
+#    def __setattr__(self, attr, val):
+#        self[attr] = val
+
+# This one does, but lacks the neat init syntax.
 class AttrDict(dict):
-    def __init__(self, *args, **kwargs):
-        dict.__init__(self, *args, **kwargs)
-    def __getattribute__(self, attr):
-        return self[attr]
-    def __setattr__(self, attr, val):
-        self[attr] = val
+    def __init__(self, *args):
+        self.__dict__ = self
 
 # This exists because wxPy as shipped on 10.5 lacks the ability to create
 # measuring contexts properly. w & h hints.
