@@ -36,14 +36,14 @@ class Channel (model.Channel):
                 path.AddLineToPoint((mid_x-r), src.y)
                 center = (mid_x - r, src.y + r)
                 path.AddArc(center, r, math.radians(270), math.radians(0))
-                path.AddLineToPoint(mid_x, max(dest.y - (2*r), src.y))
+                path.AddLineToPoint(mid_x, max(dest.y - r, src.y))
                 center = (mid_x + r, dest.y - r)
                 path.AddArc(center, r, math.radians(180), math.radians(90), False)
             else:
                 path.AddLineToPoint((mid_x-r), src.y)
                 center = (mid_x - r, src.y - r)
                 path.AddArc(center, r, math.radians(90), math.radians(0), False)
-                path.AddLineToPoint(mid_x, min(dest.y + (2*r), src.y))
+                path.AddLineToPoint(mid_x, min(dest.y + r, src.y))
                 center = (mid_x + r, dest.y + r)
                 path.AddArc(center, r, math.radians(180), math.radians(270))
 
