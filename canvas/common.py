@@ -38,9 +38,8 @@ class CanvasPanel (wx.Panel):
         # Allow drop.
         self.SetDropTarget(CanvasDropTarget(self))
 
-        self.style = AttrDict(
-            background = (175, 175, 175)
-        )
+        self.style = AttrDict()
+        self.style.background = (175, 175, 175)
 
     def get_network(self): return self._network
     def set_network(self, n): self._network = n

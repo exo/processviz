@@ -11,19 +11,20 @@ class ChanEnd (model.ChanEnd):
     
     def __init__ (self, name, direction, datatype):
         model.ChanEnd.__init__(self, name, direction, datatype)
-        self.style = AttrDict (
-            fill            = (218, 230, 242),
-            hilight         = (171,  75,  75),
-            border          = ( 76,  76,  85),
-            shadow          = True,
-            shadow_colour   = (218, 230, 242),
-            shadow_offset   = 3,
-            radius          = 4.5,                             
-            text_size       = 11,
-            text_colour     = ( 44,  48,  52),
-            pad             = 10,
-            offset          = 1, # Relation of channel end to text?
-        )
+        self.style = AttrDict()
+        s = self.style
+        s.fill            = (218, 230, 242)
+        s.hilight         = (171,  75,  75)
+        s.border          = ( 76,  76,  85)
+        s.shadow          = True
+        s.shadow_colour   = (218, 230, 242)
+        s.shadow_offset   = 3
+        s.radius          = 4.5
+        s.text_size       = 11
+        s.text_colour     = ( 44,  48,  52)
+        s.pad             = 10
+        s.offset          = 1 # Relation of channel end to text?
+
         self.x, self.y = 0, 0
 
     def get_bounds (self):

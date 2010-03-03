@@ -7,13 +7,13 @@ class Network (model.Network):
     def __init__ (self, x=0, y=0):
         model.Network.__init__(self)
         self._x, self._y = x, y
+
+        self.style = AttrDict ()
+        self.style.min_w = 50
+        self.style.min_h = 50
+        self.style.background = (255,255,255)
+        self.style.border = (172, 192, 216)
         
-        self.style = AttrDict (
-            min_w = 50,
-            min_h = 50,
-            background = (255,255,255),
-            border = (172, 192, 216),
-        )
 
     def get_x (self): return self._x
     def set_x (self, x): self._x = x

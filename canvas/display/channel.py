@@ -15,15 +15,13 @@ class Channel (model.Channel):
 		    cend_r = 4.5 		# Source this from the channel end code later.
 		)
 
-	def on_paint (self, gc):
-		style = self.style
-		src, dest = self.src, self.dest
-		#diameter = 2*radius
-		r = style.radius
-		
-		gc.SetPen(wx.Pen(colour=style.colour, width=1))
-		path = gc.CreatePath()
-		path.MoveToPoint(src.x + style.cend_r, src.y)
+        # Channel style.
+        self.style = AttrDict()
+        s = self.style
+        s.colour =      (150, 150, 150)
+        s.radius =      10
+        s.arrow_size =  (4, 4)
+        s.cend_r = 4.5  # Source this from the channel end code later.
 
 		#print "Dest: %s Src: %s" % (dest_y, src_y)
 		if dest.x > src.x:
