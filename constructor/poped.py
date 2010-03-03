@@ -40,6 +40,7 @@ class Frame(wx.Frame):
         file_menu = wx.Menu()
         open_item = file_menu.Append(-1, "&Open\tCtrl-O", "Load a saved network file")
         save_item = file_menu.Append(-1, "&Save\tCtrl-S", "Save this network")
+        build_item = file_menu.Append(-1, "&Build\tCtrl-B", "Build this program")
         file_menu.AppendSeparator()
         file_menu.Append(wx.ID_EXIT, "Exit")
 
@@ -49,7 +50,8 @@ class Frame(wx.Frame):
         # Accelerators
         accelerator_table = wx.AcceleratorTable( [
             (wx.ACCEL_CTRL, ord('O'), open_item.GetId()),
-            (wx.ACCEL_CTRL, ord('S'), save_item.GetId())
+            (wx.ACCEL_CTRL, ord('S'), save_item.GetId()),
+            (wx.ACCEL_CTRL, ord('B'), build_item.GetId())
         ])
         self.SetAcceleratorTable(accelerator_table)
 
@@ -75,6 +77,7 @@ class Frame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.OnExit, id=wx.ID_EXIT)
         self.Bind(wx.EVT_MENU, self.on_open_item, open_item)
         self.Bind(wx.EVT_MENU, self.on_save_item, save_item)
+        self.Bind(wx.EVT_MENU, self.on_build_item, build_item)
 
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.BlockChanged)
         log.debug("Finished initialising main wxFrame and AUIManager panes.")
@@ -108,10 +111,12 @@ class Frame(wx.Frame):
                 self.diagram.filename = filename
         else:
             log.debug("Saving existing file %s" % self.diagram.filename)
-            print (type(self.diagram.filename))
             output = open(self.diagram.filename, 'wb')
             pickle.dump(self.diagram.network, output, -1)
             output.close
+
+    def on_build_item (self, event):
+        print "Build"
 
     def BlockChanged(self, event):
         self.DisplayInfoPage(
