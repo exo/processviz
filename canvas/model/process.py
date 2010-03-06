@@ -1,11 +1,12 @@
 class Process (object):
-    def __init__ (self, name, params=None, parent=None, sub_network=None):
+    def __init__ (self, name, params=None, parent=None, sub_network=None, code=None):
         self._name = name
         self._input_chans = []
         self._output_chans = []
         self._sub_network = sub_network
         self._parent = parent
         self._par_count = 0
+        self._code = code
         
     def get_name (self):
         return self._name
@@ -32,6 +33,11 @@ class Process (object):
         self._sub_network = network
 
     sub_network = property(get_sub_network, set_sub_network)
+
+    def get_code (self):
+        return self._code
+
+    code = property(get_code)
 
     def par_increment (self):
         self._par_count += 1

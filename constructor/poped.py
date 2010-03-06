@@ -116,7 +116,32 @@ class Frame(wx.Frame):
             output.close
 
     def on_build_item (self, event):
-        print "Build"
+        log.info("Building code to %s" % (self.diagram.filename + '.occ'))
+        network = self.diagram.network
+        output_file = open(self.diagram.filename + '.occ', 'wb')
+        # Write out the processes - this will have to be much cleverer.
+        for process in network.processes:
+            output_file.write(process.code)
+        # Build the top level process
+        output_file.write('PROC main ()\n')
+        for channel in network.channels:
+            output_file.write('  CHAN ' + channel.datatype.upper() + ' ' + channel.name + ':\n')
+
+        output_file.write('  PAR\n')
+        for process in network.processes:
+            channel_connects = ""
+            for input_chan in process.input_chans:
+                for channel in network.channels:
+                    if channel.dest == input_chan:
+                        channel_connects += channel.name + '?, '
+            for output_chan in process.output_chans:
+                for channel in network.channels:
+                    if channel.src == output_chan:
+                        channel_connects += channel.name + '!, '
+            channel_connects = channel_connects.rstrip(', ')
+            output_file.write('    %s (%s)\n' % (process.name, channel_connects))
+        output_file.write(':\n')
+        output_file.close()
 
     def BlockChanged(self, event):
         self.DisplayInfoPage(
@@ -141,9 +166,9 @@ class Frame(wx.Frame):
         tree = wx.TreeCtrl(self, -1, wx.Point(0,0), wx.Size(150,250), wx.TR_DEFAULT_STYLE | wx.NO_BORDER)
 
         blockSource = BlockSource(Config.systemBlockPath)
-        for rootName in blockSource.getRoots():
-            root = tree.AddRoot(rootName)
-            for block in blockSource.getBlocks(rootName):
+        for root_name in blockSource.get_roots():
+            root = tree.AddRoot(root_name)
+            for block in blockSource.get_blocks(root_name):
                 itemId = tree.AppendItem(root, block['name'], data=wx.TreeItemData(block))
                 tree.SetItemPyData(itemId, block)
             tree.Expand(root)

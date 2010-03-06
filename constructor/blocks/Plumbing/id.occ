@@ -6,10 +6,11 @@ input:
 output:
  - name: out
    type: generic
-   desc: Last value recieved by the id process.
+   desc: Last value received by the id process.
 desc: >
   A process that provides a one slot buffer for incoming values.
---- Code starts here 
+
+--- Code
 PROC id (CHAN $TYPE in?, CHAN $TYPE out!)
   WHILE TRUE
     $TYPE val:

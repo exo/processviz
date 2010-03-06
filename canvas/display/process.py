@@ -6,8 +6,8 @@ from chan_end import ChanEnd
 from canvas.util import AttrDict, MeasuringContext
 
 class Process (model.Process):
-    def __init__ (self, x, y, name, params=None, parent=None, sub_network=None):
-        model.Process.__init__(self, name, params, parent, sub_network)
+    def __init__ (self, x, y, name, params=None, parent=None, sub_network=None, code=None):
+        model.Process.__init__(self, name, params, parent, sub_network, code)
         self._x, self._y = x, y
         self._selected = False
 
