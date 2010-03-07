@@ -13,11 +13,12 @@ output:
    desc: Second output stream copied from input
 
 desc: >
-  A process which copies the values it receives on its onput channel 
+  A process which copies the values it receives on its input channel
   to the output channels. Both output channels have to be serviced
   before the next input is read.
---- Code starts here 
-PROC delta(CHAN $TYPE in?, CHAN $TYPE out.1!, out.2!)
+
+--- Code
+PROC delta (CHAN $TYPE in?, CHAN $TYPE out.1!, out.2!)
   WHILE TRUE
     $TYPE val:
     SEQ

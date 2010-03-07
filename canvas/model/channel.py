@@ -13,3 +13,13 @@ class Channel (object):
 
     dest = property (get_dest)
 
+    def get_datatype (self):
+        return self._datatype
+
+    datatype = property(get_datatype)
+
+    def get_name (self):
+        return self._name
+
+    name = property(get_name)
+
