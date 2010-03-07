@@ -1,4 +1,6 @@
 name: delta
+requires:
+
 input:
  - name: in
    type: generic

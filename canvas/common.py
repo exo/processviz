@@ -156,9 +156,9 @@ class CanvasDropTarget(wx.PyDropTarget):
             chan_ends = data['input'] + data['output']
 
             canvas = self.canvas
-            p = Process (x, y, data['name'], code=data['code'])
+            p = Process (x, y, data['name'], code=data['code'], requires=data['requires'])
             p.add_chan_ends(chan_ends)
-            log.debug("Adding process: %s, %s, %s, %s", data['name'], data['input'], data['output'], data['code'])
+            log.debug("Adding process: %s, %s, %s, %s, %s", data['name'], data['input'], data['output'], data['code'], data['requires'])
             canvas.network.add_process(p)
             canvas.Refresh()
         return d

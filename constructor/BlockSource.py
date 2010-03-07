@@ -13,7 +13,11 @@ class BlockSource(object):
             for entry in os.listdir(os.path.join(path,root)):
                 if os.path.splitext(entry)[1] == '.occ' and entry[0] != '.':
                     block_file = open(os.path.join(path,root,entry), 'r').read()
-                    metadata, code = block_file.split('--- Code')
+                    if block_file.find('--- Code') is -1:
+                        metadata = block_file
+                        code = None
+                    else:
+                        metadata, code = block_file.split('--- Code')
                     block = yaml.load(metadata)
                     block['code'] = code
                     processes.append(block)

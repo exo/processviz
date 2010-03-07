@@ -120,10 +120,25 @@ class Frame(wx.Frame):
         network = self.diagram.network
         output_file = open(self.diagram.filename + '.occ', 'wb')
         # Write out the processes - this will have to be much cleverer.
+
+        # Modules
+        modules = []
         for process in network.processes:
+            if process.requires is not None:
+                for module in process.requires:
+                    if module not in modules:
+                        modules.append(module)
+        output_file.write("-- Modules\n")
+        if len(modules) > 0:
+            for module in modules:
+                output_file.write('#INCLUDE "' + module + '.module"\n')
+
+        output_file.write("\n-- Processes\n")
+        for process in network.processes:
+            print "Process code is %s" % process.code
             output_file.write(process.code)
         # Build the top level process
-        output_file.write('PROC main ()\n')
+        output_file.write('\nPROC main ()\n')
         for channel in network.channels:
             output_file.write('  CHAN ' + channel.datatype.upper() + ' ' + channel.name + ':\n')
 

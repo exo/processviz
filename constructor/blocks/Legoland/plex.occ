@@ -1,0 +1,29 @@
+name: plex
+requires:
+
+input:
+ - name: in.1
+   type: generic
+   desc: First input stream to be plexed
+ - name: in.2
+   type: generic
+   desc: Second input stream to be plexed
+
+output:
+ - name: out
+   type: generic
+   desc: Stream of plexed output
+
+desc: >
+  A process which multiplexes inputs from both of its input
+  channels into a single output stream
+
+--- Code
+PROC plex (CHAN $TYPE in.1?, in.2?, CHAN $TYPE out!)
+  WHILE TRUE
+    $TYPE val:
+    SEQ
+      in.1 ? val
+      out ! val
+      in.2 ? val
+:
