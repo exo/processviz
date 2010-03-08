@@ -1,0 +1,10 @@
+name: heartbeat
+requires: plumbing
+params:
+
+input:
+
+output:
+
+desc: >
+  Blinks an LED every 500 units, used to indicate that the board is alive.

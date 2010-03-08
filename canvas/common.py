@@ -65,7 +65,7 @@ class CanvasPanel (wx.Panel):
             self._network.on_paint(gc)
         else:
             print "No network"
-    
+
     def on_motion (self, event):
         if self._selected is not None:
             # Get all of the click data.
@@ -149,11 +149,23 @@ class CanvasDropTarget(wx.PyDropTarget):
             data = self.drop_data.GetDataHere()
             data = pickle.loads(data)
 
-            for c in data['input']:
-                c['direction'] = 'input'
-            for c in data['output']:
-                c['direction'] = 'output'
-            chan_ends = data['input'] + data['output']
+            if data['input'] is not None:
+                for c in data['input']:
+                    c['direction'] = 'input'
+
+            if data['output'] is not None:
+                for c in data['output']:
+                    c['direction'] = 'output'
+
+            # Construct list appropriately - this could probably be simpler.
+            if data['output'] is None and data['input'] is not None:
+                chan_ends = data['input']
+            elif data['input'] is None and data['output'] is not None:
+                chan_ends = data['output']
+            elif data['input'] is None and data['output'] is None:
+                chan_ends = []
+            else:
+                chan_ends = data['input'] + data['output']
 
             canvas = self.canvas
             p = Process (x, y, data['name'], code=data['code'], requires=data['requires'])
