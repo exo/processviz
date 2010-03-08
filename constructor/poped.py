@@ -23,6 +23,9 @@ from canvas.common import CanvasPanel, BlockDropData
 
 from Templates import renderTemplate
 
+# Code generator
+from codegen import OccamGenerator as CodeGenerator
+
 class Frame(wx.Frame):
     def __init__(self, parent, id=-1, title="", pos=wx.DefaultPosition, size=wx.DefaultSize, style=wx.DEFAULT_FRAME_STYLE | wx.SUNKEN_BORDER | wx.CLIP_CHILDREN):
         pi = wx.PlatformInformation()
@@ -116,47 +119,12 @@ class Frame(wx.Frame):
             output.close
 
     def on_build_item (self, event):
-        log.info("Building code to %s" % (self.diagram.filename + '.occ'))
-        network = self.diagram.network
-        output_file = open(self.diagram.filename + '.occ', 'wb')
-        # Write out the processes - this will have to be much cleverer.
-
-        # Modules
-        modules = []
-        for process in network.processes:
-            if process.requires is not None:
-                for module in process.requires:
-                    if module not in modules:
-                        modules.append(module)
-        output_file.write("-- Modules\n")
-        if len(modules) > 0:
-            for module in modules:
-                output_file.write('#INCLUDE "' + module + '.module"\n')
-
-        output_file.write("\n-- Processes\n")
-        for process in network.processes:
-            print "Process code is %s" % process.code
-            output_file.write(process.code)
-        # Build the top level process
-        output_file.write('\nPROC main ()\n')
-        for channel in network.channels:
-            output_file.write('  CHAN ' + channel.datatype.upper() + ' ' + channel.name + ':\n')
-
-        output_file.write('  PAR\n')
-        for process in network.processes:
-            channel_connects = ""
-            for input_chan in process.input_chans:
-                for channel in network.channels:
-                    if channel.dest == input_chan:
-                        channel_connects += channel.name + '?, '
-            for output_chan in process.output_chans:
-                for channel in network.channels:
-                    if channel.src == output_chan:
-                        channel_connects += channel.name + '!, '
-            channel_connects = channel_connects.rstrip(', ')
-            output_file.write('    %s (%s)\n' % (process.name, channel_connects))
-        output_file.write(':\n')
-        output_file.close()
+        if self.diagram.filename is not None:
+            log.info("Building code to %s" % (self.diagram.filename + '.occ'))
+            codegen = CodeGenerator(self.diagram.network)
+            codegen.to_file(self.diagram.filename + '.occ')
+        else:
+            log.info("Can't build code - diagram not saved")
 
     def BlockChanged(self, event):
         self.DisplayInfoPage(

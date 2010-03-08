@@ -1,5 +1,7 @@
 name: heartbeat
-requires: plumbing
+requires:
+ - plumbing
+
 params:
 
 input:

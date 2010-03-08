@@ -1,5 +1,6 @@
 name: delta
 requires:
+params:
 
 input:
  - name: in
