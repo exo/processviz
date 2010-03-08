@@ -178,15 +178,16 @@ class Frame(wx.Frame):
         self.Close()
 
     def CreateToolbox(self):
-        tree = wx.TreeCtrl(self, -1, wx.Point(0,0), wx.Size(150,250), wx.TR_DEFAULT_STYLE | wx.NO_BORDER)
+        tree = wx.TreeCtrl(self, -1, wx.Point(0,0), wx.Size(150,250), wx.TR_DEFAULT_STYLE | wx.NO_BORDER | wx.TR_HIDE_ROOT)
+        root = tree.AddRoot("Blocks")
 
         blockSource = BlockSource(Config.systemBlockPath)
         for root_name in blockSource.get_roots():
-            root = tree.AddRoot(root_name)
+            root_id = tree.AppendItem(root, root_name, data=None)
             for block in blockSource.get_blocks(root_name):
-                itemId = tree.AppendItem(root, block['name'], data=wx.TreeItemData(block))
-                tree.SetItemPyData(itemId, block)
-            tree.Expand(root)
+                child_id = tree.AppendItem(root_id, block['name'], data=wx.TreeItemData(block))
+                tree.SetItemPyData(child_id, block)
+            tree.Expand(root_id)
         return tree
 
     def CreateInfoPanel(self):
