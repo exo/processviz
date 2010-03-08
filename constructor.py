@@ -1,22 +1,23 @@
+# constructor.py
+# Entry point for Processes' network constructor
+# (c) 2010 Jon Simpson <me@jonsimpson.co.uk>
 
 import wx
-import wx.lib.ogl as ogl
 import logging, logging.config
 
-class ConstructorApp (wx.App):
+class ProcessesApp (wx.App):
     def OnInit(self):
-        import constructor.poped as poped
-        ogl.OGLInitialize()
-        frame = poped.Frame(
+        import constructor.processes as processes
+        frame = processes.Frame(
                 parent=None,
-                title="Constructor",
+                title="Processes",
                 size=(800, 600),
                 pos=(100, 100)
         )
         frame.Show()
         return True
-    # FIXME: Not platform independent.
+    # FIXME: Separator platform independent.
     logging.config.fileConfig('constructor/logging.conf')
 
-c = ConstructorApp(redirect=False)
-c.MainLoop()
+app = ProcessesApp(redirect=False)
+app.MainLoop()

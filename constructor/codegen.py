@@ -26,7 +26,6 @@ class OccamGenerator (object):
             if process.requires is not None:
                 for module in process.requires:
                     if module not in modules:
-                        print "Appending %s" % module
                         modules.append(module)
         self._wl('-- Modules')
         if len(modules) > 0:

@@ -10,7 +10,7 @@ except ImportError:
 
 # Logging
 import logging
-log = logging.getLogger("popedLogger");
+log = logging.getLogger("Processes");
 
 class CanvasFrame (wx.Frame):
     def __init__ (self, parent):

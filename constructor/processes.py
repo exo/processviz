@@ -1,5 +1,6 @@
-# poped.py
-# Part of POPed
+# processes.py
+# Defines the UI and interaction of the Processes App.
+# (c) 2010 Jon Simpson <me@jonsimpson.co.uk>
 
 import sys
 import os
@@ -11,16 +12,16 @@ except ImportError:
     import pickle
 
 import logging
-log = logging.getLogger("popedLogger");
+log = logging.getLogger("Processes");
 
-
-# Pieces of POPed
+# Pieces of Processes itself.
 from Config import Config
 from BlockSource import BlockSource
-#from OGLProcessDiagram import ProcessDiagram, BlockDropData
 
+# Canvas component
 from canvas.common import CanvasPanel, BlockDropData
 
+# Mako for the info panel
 from Templates import renderTemplate
 
 # Code generator

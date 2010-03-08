@@ -4,7 +4,7 @@ from mako.lookup import TemplateLookup
 from Config import Config
 
 import logging
-log = logging.getLogger("popedLogger");
+log = logging.getLogger("Processes");
 
 mylookup = TemplateLookup(directories=[Config.templatePath]) 
 
