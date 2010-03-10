@@ -1,5 +1,5 @@
 import wx
-from display import Process, Network, ChanEnd, Channel
+from display import *
 from util import AttrDict
 
 # Pickle
@@ -159,11 +159,13 @@ class CanvasDropTarget(wx.PyDropTarget):
                 for end in data['output']:
                     outputs.append(ChanEnd(end['name'], 'output', end['type']))
 
-            if data['params'] is None:
-                data['params'] = []
+            params = []
+            if data['params']:
+                for param in data['params']:
+                    params.append(Param(param['name'], param['type'], None))
 
             canvas = self.canvas
-            p = Process (x, y, data['name'], params=data['params'], input_chans=inputs, output_chans=outputs, code=data['code'], requires=data['requires'])
+            p = Process (x, y, data['name'], params=params, input_chans=inputs, output_chans=outputs, code=data['code'], requires=data['requires'])
             canvas.network.add_process(p)
             canvas.Refresh()
         return d

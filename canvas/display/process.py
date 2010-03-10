@@ -2,7 +2,6 @@ from __future__ import with_statement
 
 import wx
 from canvas import model
-from chan_end import ChanEnd
 from canvas.util import AttrDict, MeasuringContext
 
 class Process (model.Process):
@@ -134,27 +133,12 @@ class Process (model.Process):
 
     def max_param_size (self):
         if len(self.params) > 0:
-            with MeasuringContext() as gc:
-                gc.SetFont(gc.CreateFont(wx.Font(pointSize=self.style.params, family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL), self.style.text_colour))
-                sizes = [gc.GetTextExtent(p['name']) for p in self.params]
+            sizes = [p.size for p in self.params]
             max_w = max([s[0] for s in sizes])
             max_h = max([s[1] for s in sizes])
             return (max_w, max_h)
         else:
             return (0,0)
-                
-    def draw_params (self, gc, top_offset):
-        style = self.style
-        (w, h) = self.size
-        font = gc.CreateFont(wx.Font(pointSize=style.params, family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL), style.text_colour)
-        gc.SetFont(font)
-        max_w, max_h = 0, 0
-        for param in self.params:
-            (text_w, text_h) = gc.GetTextExtent(param['name'])
-            if text_w > max_w:
-                max_w = text_w
-            if text_h > max_h:
-                max_h = text_h
 
     def on_paint (self, gc):
         self.draw_outer(gc)
@@ -219,19 +203,14 @@ class Process (model.Process):
         return (text_w, text_h)
 
     def draw_params (self, gc, top_offset):
-        style = self.style
         (w, h) = self.size
-        font = gc.CreateFont(wx.Font(pointSize=style.params, family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL), style.text_colour)
-        gc.SetFont(font)
         max_w, max_h = self.max_param_size()
 
-        i = 0 # Counter for the rows to increment y by max_h
+        x = self.x + (w / 2)
+        y = self.y + top_offset
         for param in self.params:
-            (text_w, text_h) = gc.GetTextExtent(param['name'])
-            text_x = (self.x + (w/2)) - (text_w/2)
-            text_y = self.y + top_offset + (text_h/2) + (i * max_h)
-            gc.DrawText(param['name'], text_x, text_y)
-            i += 1
+            param.on_paint(gc, (x, y))
+            y += max_h
 
     def hit_test (self, x, y):
         """Hit test the process and its channel ends for a given hit"""

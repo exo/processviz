@@ -4,9 +4,6 @@ from canvas.util import AttrDict, MeasuringContext
 import wx
 from canvas import model
 
-import logging
-log = logging.getLogger("popedLogger");
-
 class ChanEnd (model.ChanEnd):
     
     def __init__ (self, name, direction, datatype):
