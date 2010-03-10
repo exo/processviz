@@ -229,7 +229,7 @@ class Process (model.Process):
         for param in self.params:
             (text_w, text_h) = gc.GetTextExtent(param['name'])
             text_x = (self.x + (w/2)) - (text_w/2)
-            text_y = self.y + top_offset + (i * max_h)
+            text_y = self.y + top_offset + (text_h/2) + (i * max_h)
             gc.DrawText(param['name'], text_x, text_y)
             i += 1
 
