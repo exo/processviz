@@ -11,8 +11,8 @@ class Network (model.Network):
         self.style = AttrDict ()
         self.style.min_w = 50
         self.style.min_h = 50
-        self.style.background = (255,255,255)
-        self.style.border = (172, 192, 216)
+        self.style.background = (238,238,238)
+        self.style.border = (221, 221, 221)
         
 
     def get_x (self): return self._x

@@ -9,6 +9,5 @@ log = logging.getLogger("Processes");
 mylookup = TemplateLookup(directories=[Config.templatePath]) 
 
 def renderTemplate(templatename, **kwargs):
-	log.info("Using template path %s" % Config.templatePath)
-	mytemplate = mylookup.get_template(templatename)
-	return mytemplate.render(**kwargs)
+    mytemplate = mylookup.get_template(templatename)
+    return mytemplate.render(**kwargs)

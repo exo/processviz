@@ -39,7 +39,7 @@ class CanvasPanel (wx.Panel):
         self.SetDropTarget(CanvasDropTarget(self))
 
         self.style = AttrDict()
-        self.style.background = (175, 175, 175)
+        self.style.background = (255, 255, 255)
 
     def get_network(self): return self._network
     def set_network(self, n): self._network = n
@@ -164,7 +164,6 @@ class CanvasDropTarget(wx.PyDropTarget):
 
             canvas = self.canvas
             p = Process (x, y, data['name'], params=data['params'], input_chans=inputs, output_chans=outputs, code=data['code'], requires=data['requires'])
-            log.debug("Adding process: %s, %s, %s, %s, %s, %s", data['name'], data['params'], inputs, outputs, data['code'], data['requires'])
             canvas.network.add_process(p)
             canvas.Refresh()
         return d
