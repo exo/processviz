@@ -1,14 +1,15 @@
 class Process (object):
-    def __init__ (self, name, params=None, parent=None, sub_network=None, code=None, requires=None):
+    def __init__ (self, name, params=[], input_chans=[], output_chans=[], parent=None, sub_network=None, code=None, requires=None):
         self._name = name
-        self._input_chans = []
-        self._output_chans = []
+        self._params = params
+        self._input_chans = input_chans
+        self._output_chans = output_chans
         self._sub_network = sub_network
         self._parent = parent
         self._par_count = 0
         self._code = code
         self._requires = requires
-        
+
     def get_name (self):
         return self._name
 
@@ -16,6 +17,11 @@ class Process (object):
         self._name = name
 
     name = property(get_name, set_name)
+
+    def get_params (self):
+        return self._params
+
+    params = property(get_params)
 
     def get_input_chans (self):
         return self._input_chans

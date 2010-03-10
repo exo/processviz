@@ -149,28 +149,22 @@ class CanvasDropTarget(wx.PyDropTarget):
             data = self.drop_data.GetDataHere()
             data = pickle.loads(data)
 
-            if data['input'] is not None:
-                for c in data['input']:
-                    c['direction'] = 'input'
+            inputs = []
+            if data['input']:
+                for end in data['input']:
+                    inputs.append(ChanEnd(end['name'], 'input', end['type']))
 
-            if data['output'] is not None:
-                for c in data['output']:
-                    c['direction'] = 'output'
+            outputs = []
+            if data['output']:
+                for end in data['output']:
+                    outputs.append(ChanEnd(end['name'], 'output', end['type']))
 
-            # Construct list appropriately - this could probably be simpler.
-            if data['output'] is None and data['input'] is not None:
-                chan_ends = data['input']
-            elif data['input'] is None and data['output'] is not None:
-                chan_ends = data['output']
-            elif data['input'] is None and data['output'] is None:
-                chan_ends = []
-            else:
-                chan_ends = data['input'] + data['output']
+            if data['params'] is None:
+                data['params'] = []
 
             canvas = self.canvas
-            p = Process (x, y, data['name'], code=data['code'], requires=data['requires'])
-            p.add_chan_ends(chan_ends)
-            log.debug("Adding process: %s, %s, %s, %s, %s", data['name'], data['input'], data['output'], data['code'], data['requires'])
+            p = Process (x, y, data['name'], params=data['params'], input_chans=inputs, output_chans=outputs, code=data['code'], requires=data['requires'])
+            log.debug("Adding process: %s, %s, %s, %s, %s, %s", data['name'], data['params'], inputs, outputs, data['code'], data['requires'])
             canvas.network.add_process(p)
             canvas.Refresh()
         return d

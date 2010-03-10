@@ -6,8 +6,8 @@ from chan_end import ChanEnd
 from canvas.util import AttrDict, MeasuringContext
 
 class Process (model.Process):
-    def __init__ (self, x, y, name, params=None, parent=None, sub_network=None, code=None, requires=None):
-        model.Process.__init__(self, name, params, parent, sub_network, code, requires)
+    def __init__ (self, x, y, name, params=[], input_chans=[], output_chans=[], parent=None, sub_network=None, code=None, requires=None):
+        model.Process.__init__(self, name, params, input_chans, output_chans, parent, sub_network, code, requires)
         self._x, self._y = x, y
         self._selected = False
 
@@ -22,11 +22,12 @@ class Process (model.Process):
         s.shadow_offset   = 3
         s.border          = ( 76,  76,  85)
         s.text_colour     = ( 44,  48,  52)
-        s.v_pad           = 5               # Vertical padding
+        s.v_pad           = 5                # Vertical padding
         s.h_pad           = 10               # Horizontal padding
         s.lbl_pad         = 2                # Label padding
         s.cend_r          = 4.5              # Radius of channel end.
         s.main_label      = 13               # Font size of main label
+        s.params          = 11               # Font size of parameter labels
         s.end_pad         = 5
         s.expander_size   = 6                # Expander widget size.
         s.expander_offset = 7
@@ -72,20 +73,42 @@ class Process (model.Process):
             w, h = w + self.style.shadow_offset, h + self.style.shadow_offset
         return (self.x, self.y, self.x + w, self.y + h)
     bounds = property(get_bounds)
-    
+
     def get_size (self):
         (w, h) = self.get_name_size(self.name)
+        style = self.style
+
         chan_end_w, chan_end_h = self.max_chan_end_size()
-        # Width either the label, or the max of the channel ends.
-        w = max(w, ((2 * chan_end_w) + self.style.h_pad))
-        # Height sum of label and maximum ends height
-        h += max(len(self.input_chans),len(self.output_chans)) * chan_end_h + self.style.v_pad
-        
+        param_w, param_h = self.max_param_size()
+
+        # Content width is max chan label * 2 plus a unit of padding
+        content_w = (2 * chan_end_w) + style.h_pad
+
+        # Include parameter label width & padding, if we have params
+        if len(self.params) > 0:
+            content_w += param_w + (2 * style.h_pad)
+
+        # Width either the name label, or the max of the content width
+        w = max(w, content_w)
+
+        # Height sum of label and the height of the max number of ends of either type.
+        h += max(len(self.input_chans),len(self.output_chans)) * chan_end_h + style.v_pad
+
+        # Add space for params, if we have them, plus top & bottom padding.
+        if len(self.params) > 0:
+            h += style.v_pad + (len(self.params) * param_h)
+
+        # Width max of current width, or params plus padding.
+
+        if len(self.params) > 0:
+            w = max(w, (param_w + 2*style.h_pad))
+
+
         if self._sub_network:
             (net_w, net_h) = self._sub_network.get_size()
             w += net_w
             h += net_h
-        
+
         return (w, h)
     size = property(get_size)
 
@@ -99,7 +122,7 @@ class Process (model.Process):
         w += (self.style.h_pad * 2)
         h += (self.style.v_pad * 2)
         return (w, h)
-    
+
     def max_chan_end_size (self):
         if len(self.input_chans) + len(self.output_chans) > 0:
             sizes = [c.size for c in (self.input_chans + self.output_chans)]
@@ -109,19 +132,55 @@ class Process (model.Process):
         else:
             return (0,0)
 
+    def max_param_size (self):
+        if len(self.params) > 0:
+            with MeasuringContext() as gc:
+                gc.SetFont(gc.CreateFont(wx.Font(pointSize=self.style.params, family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL), self.style.text_colour))
+                sizes = [gc.GetTextExtent(p['name']) for p in self.params]
+            max_w = max([s[0] for s in sizes])
+            max_h = max([s[1] for s in sizes])
+            return (max_w, max_h)
+        else:
+            return (0,0)
+                
+    def draw_params (self, gc, top_offset):
+        style = self.style
+        (w, h) = self.size
+        font = gc.CreateFont(wx.Font(pointSize=style.params, family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL), style.text_colour)
+        gc.SetFont(font)
+        max_w, max_h = 0, 0
+        for param in self.params:
+            (text_w, text_h) = gc.GetTextExtent(param['name'])
+            if text_w > max_w:
+                max_w = text_w
+            if text_h > max_h:
+                max_h = text_h
+
     def on_paint (self, gc):
         self.draw_outer(gc)
-        self.draw_name(gc)
-        x = self.x
-        y = self.y + self.size[1] - self.style.h_pad
-        for c in self.input_chans:
-            c.on_paint(gc, (x,y))
-            y -= (self.max_chan_end_size()[1] + self.style.v_pad)
-        x = self.x + self.size[0]
-        y = self.y + self.size[1] - self.style.h_pad
-        for c in self.output_chans:
-            c.on_paint(gc, (x, y))
-            y -= (self.max_chan_end_size()[1] + self.style.v_pad)
+        (name_w, name_h) = self.draw_name(gc)
+
+        # Parameters
+        if self.params and len(self.params) > 0:
+            self.draw_params(gc, name_h + self.style.v_pad)
+
+        # Input channel ends
+        if self.input_chans and len(self.input_chans) > 0:
+            x = self.x
+            y = self.y + self.size[1] - self.style.h_pad
+            for c in self.input_chans:
+                c.on_paint(gc, (x,y))
+                y -= (self.max_chan_end_size()[1] + self.style.v_pad)
+
+        # Output channel ends
+        if self.output_chans and len(self.output_chans) > 0:
+            x = self.x + self.size[0]
+            y = self.y + self.size[1] - self.style.h_pad
+            for c in self.output_chans:
+                c.on_paint(gc, (x, y))
+                y -= (self.max_chan_end_size()[1] + self.style.v_pad)
+
+        # Sub network
         if self.sub_network:
            self.sub_network.on_paint(gc)
 
@@ -134,7 +193,7 @@ class Process (model.Process):
             gc.SetPen(wx.Pen(colour=style.shadow_colour, width=0))
             gc.SetBrush(gc.CreateBrush(wx.Brush(style.shadow_colour)))
             gc.DrawPath(path)
-        
+
         # Outer rect.
         path = gc.CreatePath()
         path.AddRectangle(self.x, self.y, w, h)
@@ -146,7 +205,7 @@ class Process (model.Process):
         gc.SetBrush(brush)
         gc.DrawPath(path)
         #self._path = path - for hit testing.
-        
+
     def draw_name (self, gc):
         """Draw the name label for this process"""
         style = self.style
@@ -157,7 +216,23 @@ class Process (model.Process):
         text_x = (self.x + (w/2)) - (text_w / 2)
         text_y = self.y + style.v_pad
         gc.DrawText(self.name, text_x, text_y)
-    
+        return (text_w, text_h)
+
+    def draw_params (self, gc, top_offset):
+        style = self.style
+        (w, h) = self.size
+        font = gc.CreateFont(wx.Font(pointSize=style.params, family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL), style.text_colour)
+        gc.SetFont(font)
+        max_w, max_h = self.max_param_size()
+
+        i = 0 # Counter for the rows to increment y by max_h
+        for param in self.params:
+            (text_w, text_h) = gc.GetTextExtent(param['name'])
+            text_x = (self.x + (w/2)) - (text_w/2)
+            text_y = self.y + top_offset + (i * max_h)
+            gc.DrawText(param['name'], text_x, text_y)
+            i += 1
+
     def hit_test (self, x, y):
         """Hit test the process and its channel ends for a given hit"""
         # Hit test channel ends.
@@ -191,21 +266,9 @@ class Process (model.Process):
         else:
             self.y = tmp_y
 
-    def add_chan_ends (self, chan_ends):
-        """Add a list of new channel ends to this process"""
-        for c in chan_ends:
-            self.add_chan_end(c['name'], c['direction'], c['type'])
-
-    def add_chan_end (self, name, direction, datatype):
-        """Add a single new channel end to this process"""
-        if direction == 'input':
-            self.input_chans.append(ChanEnd(name, direction, datatype))
-        elif direction == 'output':
-            self.output_chans.append(ChanEnd(name, direction, datatype))
-        #TODO: Error out here if the type is unknown.
-
     def structure (self):
         if self._sub_network:
             return dict(_type="Process", name=self.name, sub_network=self._sub_network.structure())
         else:
             return dict(_type="Process", name=self.name, sub_network=None)
+
