@@ -146,7 +146,10 @@ class Process (model.Process):
 
         # Parameters
         if self.params and len(self.params) > 0:
-            self.draw_params(gc, name_h + self.style.v_pad)
+            sizes = [p.get_label_size() for p in self.params]
+            max_label_w = max([s[0] for s in sizes])
+            max_w, max_h = self.max_chan_end_size()
+            self.draw_params(gc, name_h + self.style.v_pad, max_label_w, max_w)
 
         # Input channel ends
         if self.input_chans and len(self.input_chans) > 0:
@@ -202,14 +205,14 @@ class Process (model.Process):
         gc.DrawText(self.name, text_x, text_y)
         return (text_w, text_h)
 
-    def draw_params (self, gc, top_offset):
+    def draw_params (self, gc, top_offset, max_label_w, max_w):
         (w, h) = self.size
         max_w, max_h = self.max_param_size()
 
         x = self.x + (w / 2)
         y = self.y + top_offset
         for param in self.params:
-            param.on_paint(gc, (x, y))
+            param.on_paint(gc, (x, y), max_label_w,  max_w)
             y += max_h
 
     def hit_test (self, x, y):
