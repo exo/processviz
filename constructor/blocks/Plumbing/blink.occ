@@ -1,0 +1,18 @@
+name: blink
+requires:
+ - plumbing
+
+params:
+ - type: int
+   name: pin
+   desc: The Arduino pin
+ - type: int
+   name: delay.time
+   desc: The number of milliseconds between toggles
+
+input:
+
+output:
+
+desc: >
+  Drives a pin alternately LOW and HIGH on a fixed cycle.
