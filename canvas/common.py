@@ -28,6 +28,7 @@ class CanvasPanel (wx.Panel):
         self._selected = None
         self._chan_start_point = None
         self._filename = None
+        self._chan_count = 0
 
         # Events
         self.Bind(wx.EVT_PAINT, self.on_paint)
@@ -104,7 +105,8 @@ class CanvasPanel (wx.Panel):
                         else:
                             src = self._selected['hit']
                             dest = self._chan_start_point
-                        self._network.add_channel(Channel('bar', src.datatype, src, dest))
+                        self._network.add_channel(Channel('c' + str(self._chan_count), src.datatype, src, dest))
+                        self._chan_count += 1
                         self._chan_start_point.selected = False
                         self._chan_start_point = None
                         self.Refresh()
