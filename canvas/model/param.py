@@ -3,8 +3,9 @@
 # (c) 2010 Jon Simpson <me@jonsimpson.co.uk>
 
 class Param (object):
-    def __init__ (self, name, datatype, value=None):
-        self._name, self._datatype, self._value = name, datatype, value
+    def __init__ (self, name, datatype, value=None, desc=""):
+        self._name, self._datatype = name, datatype
+        self._value, self._desc = value, desc
 
     def get_name (self):
         return self._name
@@ -22,4 +23,9 @@ class Param (object):
         self._value = value
 
     value = property (get_value, set_value)
+
+    def get_desc (self):
+        return self._desc
+
+    desc = property (get_desc)
 

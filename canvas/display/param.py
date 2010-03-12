@@ -10,8 +10,8 @@ from canvas.util import AttrDict, MeasuringContext
 
 class Param (model.Param):
 
-    def __init__ (self, name, datatype, value=None):
-        model.Param.__init__(self, name, datatype, value)
+    def __init__ (self, name, datatype, value=None, desc=""):
+        model.Param.__init__(self, name, datatype, value, desc)
         self.x, self.y = 0, 0
         self.style = AttrDict()
         s = self.style

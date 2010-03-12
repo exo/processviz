@@ -145,7 +145,12 @@ class CanvasPanel (wx.Panel):
             self._right_selected = None
 
     def on_context_properties(self, event):
-        print "Properties for %s requested" % self._right_selected
+        selected = self._right_selected['hit']
+        print "Properties for %s requested" % selected
+        pd = PropertiesDialog(selected)
+        pd.ShowModal()
+        pd.Destroy()
+        self.Refresh()
         self._right_selected = None
 
     def draw_background(self, gc):
@@ -187,10 +192,10 @@ class CanvasDropTarget(wx.PyDropTarget):
             params = []
             if data['params']:
                 for param in data['params']:
-                    params.append(Param(param['name'], param['type'], None))
+                    params.append(Param(param['name'], param['type'], value=None, desc=param['desc']))
 
             canvas = self.canvas
-            p = Process (x, y, data['name'], params=params, input_chans=inputs, output_chans=outputs, code=data['code'], requires=data['requires'])
+            p = Process (x, y, data['name'], params=params, input_chans=inputs, output_chans=outputs, code=data['code'], requires=data['requires'], desc=data['desc'])
             canvas.network.add_process(p)
             canvas.Refresh()
         return d
@@ -208,3 +213,56 @@ class BlockDropData(wx.PyDataObjectSimple):
     def SetData(self, data):
         self.data = data
         return True
+
+class ParameterValidator (wx.PyValidator):
+    def __init__ (self, process, key):
+        wx.PyValidator.__init__(self)
+        self.process = process
+        self.key = key
+
+    def Clone (self):
+        """ All validators must implement Clone """
+        return ParameterValidator(self.process, self.key)
+
+    def Validate (self, win):
+        # validation goes here
+        return True
+
+    def TransferToWindow (self):
+        textCtrl = self.GetWindow()
+        for param in self.process.params:
+            if param.name is self.key:
+                textCtrl.SetValue(str(param.value))
+        return True
+
+    def TransferFromWindow (self):
+        textCtrl = self.GetWindow()
+        for param in self.process.params:
+            if param.name is self.key:
+                param.value = textCtrl.GetValue()
+        return True
+
+class PropertiesDialog (wx.Dialog):
+    def __init__ (self, process):
+        wx.Dialog.__init__(self, None, -1, "Process: %s" % process.name)
+        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer.Add(wx.StaticText(self, -1, process.desc))
+        sizer.Add(wx.StaticLine(self), 0, wx.EXPAND|wx.ALL, 5)
+        fgs = wx.FlexGridSizer(3, 2, 5, 5)
+        # Create the edit fields.
+        for param in process.params:
+            fgs.Add(wx.StaticText(self, -1, "%s (%s)" % (param.name, param.datatype)), 0, wx.ALIGN_RIGHT)
+            field = wx.TextCtrl(self, validator=ParameterValidator(process, param.name))
+            field.SetValue(str(param.value))
+            fgs.Add(field, 0, wx.EXPAND)
+        fgs.AddGrowableCol(1)
+        sizer.Add(fgs, 0, wx.EXPAND|wx.ALL, 5)
+        btns = wx.StdDialogButtonSizer()
+        okay = wx.Button(self, wx.ID_OK)
+        okay.SetDefault()
+        btns.AddButton(okay)
+        btns.AddButton(wx.Button(self, wx.ID_CANCEL))
+        btns.Realize()
+        sizer.Add(btns, 0, wx.EXPAND|wx.ALL, 5)
+        self.SetSizer(sizer)
+        sizer.Fit(self)

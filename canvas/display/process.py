@@ -5,8 +5,8 @@ from canvas import model
 from canvas.util import AttrDict, MeasuringContext
 
 class Process (model.Process):
-    def __init__ (self, x, y, name, params=[], input_chans=[], output_chans=[], parent=None, sub_network=None, code=None, requires=None):
-        model.Process.__init__(self, name, params, input_chans, output_chans, parent, sub_network, code, requires)
+    def __init__ (self, x, y, name, params=[], input_chans=[], output_chans=[], parent=None, sub_network=None, code=None, requires=None, desc=""):
+        model.Process.__init__(self, name, params, input_chans, output_chans, parent, sub_network, code, requires, desc)
         self._x, self._y = x, y
         self._selected = False
 

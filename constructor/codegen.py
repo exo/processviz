@@ -49,6 +49,15 @@ class OccamGenerator (object):
         if len(network.processes) > 0:
             self._wl('  PAR')
             for process in network.processes:
+                # Parameters
+                parameter_list = ""
+                for param in process.params:
+                    if param.value:
+                        parameter_list += param.value + ", "
+                    else:
+                        print "Invalid code being generated - None still in param list"
+
+                # Channels
                 channel_connects = ""
                 for input_chan in process.input_chans:
                     for channel in network.channels:
@@ -59,7 +68,12 @@ class OccamGenerator (object):
                         if channel.src == output_chan:
                             channel_connects += channel.name + '!, '
                 channel_connects = channel_connects.rstrip(', ')
-                self._wl('    %s (%s)' % (process.name, channel_connects))
+
+                # If there are no channel connections, strip the parameter list.
+                if channel_connects == "":
+                    parameter_list = parameter_list.rstrip(', ')
+
+                self._wl('    %s (%s%s)' % (process.name, parameter_list, channel_connects))
         else:
             self._wl('  SKIP')
 

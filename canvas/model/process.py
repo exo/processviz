@@ -1,5 +1,5 @@
 class Process (object):
-    def __init__ (self, name, params=[], input_chans=[], output_chans=[], parent=None, sub_network=None, code=None, requires=None):
+    def __init__ (self, name, params=[], input_chans=[], output_chans=[], parent=None, sub_network=None, code=None, requires=None, desc=""):
         self._name = name
         self._params = params
         self._input_chans = input_chans
@@ -9,6 +9,7 @@ class Process (object):
         self._par_count = 0
         self._code = code
         self._requires = requires
+        self._desc = desc
 
     def get_name (self):
         return self._name
@@ -50,6 +51,11 @@ class Process (object):
         return self._requires
 
     requires = property(get_requires)
+
+    def get_desc (self):
+        return self._desc
+
+    desc = property(get_desc)
 
     def par_increment (self):
         self._par_count += 1
