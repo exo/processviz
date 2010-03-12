@@ -18,7 +18,25 @@ class Param (model.Param):
         s.font_size = 11    # Font size of parameter labels
         s.text_colour = ( 44,  48,  52)
 
-    def get_size (self):
+    def get_label_text (self):
+        return self.name + ':'
+
+    def get_label_size (self):
+        return self.get_text_size(self.get_label_text())
+
+    def get_value_text (self):
+        if self.value:
+            return ' ' + self.value
+        else:
+            return ' None'
+
+    def get_value_size(self):
+        return self.get_text_size(self.get_value_text())
+
+    def get_text (self):
+        return self.get_label_text() + self.get_value_text()
+
+    def get_text_size (self, text):
         with MeasuringContext() as gc:
             gc.SetFont(
                 gc.CreateFont(
@@ -28,11 +46,14 @@ class Param (model.Param):
                             weight=wx.FONTWEIGHT_NORMAL)
                 , self.style.text_colour)
             )
-        return gc.GetTextExtent(self.name)
+        return gc.GetTextExtent(text)
+
+    def get_size (self):
+        return self.get_text_size(self.get_text())
 
     size = property(get_size)
 
-    def on_paint (self, gc, location):
+    def on_paint (self, gc, location, max_label_width, max_width):
         self.x, self.y = location
         gc.SetFont(
             gc.CreateFont(
@@ -43,8 +64,11 @@ class Param (model.Param):
             , self.style.text_colour)
         )
 
-        text_w, text_h = gc.GetTextExtent(self.name)
-        text_x = self.x - text_w / 2
-        text_y = self.y + text_h / 2
-        gc.DrawText(self.name, text_x, text_y)
+        text_w, text_h = self.size
+        label_w, label_h = self.get_label_size()
 
+        text_x = self.x - (max_width/2) + (max_label_width - label_w)
+        text_y = self.y + text_h / 2
+        gc.DrawText(self.get_label_text(), text_x, text_y)
+        text_x = self.x - (max_width/2) + max_label_width
+        gc.DrawText(self.get_value_text(), text_x, text_y)
