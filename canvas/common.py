@@ -34,6 +34,7 @@ class CanvasPanel (wx.Panel):
         self.Bind(wx.EVT_LEFT_DOWN, self.on_left_down)
         self.Bind(wx.EVT_LEFT_UP, self.on_left_up)
         self.Bind(wx.EVT_MOTION, self.on_motion)
+        self.Bind(wx.EVT_RIGHT_DOWN, self.on_right_down)
 
         # Allow drop.
         self.SetDropTarget(CanvasDropTarget(self))
@@ -122,6 +123,30 @@ class CanvasPanel (wx.Panel):
                     self.Refresh()
             # Cancel out the current selection.
             self._selected = None
+
+    def on_right_down(self, event):
+        right_selected = self._network.hit_test(event.X, event.Y)
+        if right_selected and isinstance(right_selected['hit'], Process):
+            # Store, in case the menu is invoked.
+            self._right_selected = right_selected
+
+            # Only bind the first time.
+            if not hasattr(self, 'context_properties'):
+                self.context_properties = wx.NewId()
+                self.Bind(wx.EVT_MENU, self.on_context_properties, id=self.context_properties)
+
+            # Make the popup menu
+            menu = wx.Menu()
+            menu.Append(self.context_properties, "Properties")
+            self.PopupMenu(menu)
+            menu.Destroy()
+
+            # Can reset here, as by the time the menu is destroyed, the menu event has happened.
+            self._right_selected = None
+
+    def on_context_properties(self, event):
+        print "Properties for %s requested" % self._right_selected
+        self._right_selected = None
 
     def draw_background(self, gc):
         (w, h) = self.GetSize()
