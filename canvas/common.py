@@ -55,11 +55,17 @@ class CanvasPanel (wx.Panel):
     filename = property(get_filename, set_filename)
 
     def on_paint (self, event):
+        # PaintDC's aren't double buffered on Windows.
+        if 'wxMSW' in wx.PlatformInfo:
+            dc = wx.BufferedPaintDC(self)
+        else:
+            dc = wx.PaintDC(self)
         dc = wx.PaintDC(self)
+
         try:
             gc = wx.GraphicsContext.Create(dc)
         except NotImplementedError:
-            print "GraphicsContext not supported here"
+            log.debug("GraphicsContext not supported on this platform")
             return
         # Drawing
         self.draw_background(gc)
