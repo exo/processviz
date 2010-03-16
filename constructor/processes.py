@@ -105,9 +105,15 @@ class Frame(wx.Frame):
     def on_save_item (self, event):
         if self.diagram.filename is None:
             wildcard = "Process Network (*.processes)|*.processes"
-            dialog = wx.FileDialog(None, "Save File as", os.getcwd(), "", wildcard, wx.SAVE)
+            dialog = wx.FileDialog(None, "Save File as", os.getcwd(), "", wildcard, style=wx.SAVE|wx.FD_OVERWRITE_PROMPT)
             if dialog.ShowModal() == wx.ID_OK:
                 filename = dialog.GetPath()
+                # On Mac & Linux, the default extension is not forced if you type something directly.
+                # Supposedly this was fixed in wx at some point, see: http://trac.wxwidgets.org/ticket/9917
+                # but still seems to misbehave on wxPython 2.8.8.1 (mac-unicode) with 10.6.2
+                # This hack means the overwrite warning is useless on the dialog, as we change the filename here.
+                if not filename.endswith('.processes'):
+                    filename += '.processes'
                 log.debug("Saving new file as %s" % filename)
                 output = open(filename, 'wb')
                 pickle.dump(self.diagram.network, output, -1)
