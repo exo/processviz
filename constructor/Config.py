@@ -33,6 +33,12 @@ class MacAppConfig(Conf):
 		import wx
 		sp = wx.StandardPaths.Get()
 		return sp.GetResourcesDir()
+	@property
+	def templatePath(self):
+		return join(self.base, 'resources')
+	@property
+	def systemBlockPath(self):
+		return join(self.base, 'blocks')
 
 class WinConfig(Conf):
 	pass

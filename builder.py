@@ -1,7 +1,6 @@
-# constructor.py
+# builder.py
 # Entry point for Processes' network constructor
 # (c) 2010 Jon Simpson <me@jonsimpson.co.uk>
-
 import wx
 import logging, logging.config
 
@@ -17,7 +16,7 @@ class ProcessesApp (wx.App):
         frame.Show()
         return True
     # FIXME: Separator platform independent.
-    logging.config.fileConfig('constructor/logging.conf')
+    #logging.config.fileConfig('constructor/logging.conf')
 
 app = ProcessesApp(redirect=False)
 app.MainLoop()
