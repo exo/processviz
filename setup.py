@@ -8,7 +8,7 @@ Usage:
 from setuptools import setup
 
 setup(
-    app=[ 'builder.py' ],
+    app=[ 'macApp.py' ],
     options=dict(
         py2app=dict(
             packages=['wx'],
