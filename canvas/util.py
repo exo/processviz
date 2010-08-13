@@ -24,7 +24,7 @@ class MeasuringContext(object):
         try:
             gc = wx.GraphicsContext.Create(dc)
         except NotImplementedError:
-            print "GraphicsContext not supported here"
+            log.error("GraphicsContext not supported here")
         return gc
     
     def __exit__ (self, type, value, traceback):
