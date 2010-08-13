@@ -72,7 +72,7 @@ class CanvasPanel (wx.Panel):
         if self._network:
             self._network.on_paint(gc)
         else:
-            print "No network"
+            log.debug("No network")
 
     def on_motion (self, event):
         if self._selected is not None:
@@ -154,7 +154,7 @@ class CanvasPanel (wx.Panel):
 
     def on_context_properties(self, event):
         selected = self._right_selected['hit']
-        print "Properties for %s requested" % selected
+        log.debug("Properties for %s requested" % selected)
         pd = PropertiesDialog(selected)
         pd.ShowModal()
         pd.Destroy()

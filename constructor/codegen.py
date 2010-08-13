@@ -55,7 +55,7 @@ class OccamGenerator (object):
                     if param.value:
                         parameter_list += param.value + ", "
                     else:
-                        print "Invalid code being generated - None still in param list"
+                        log.debug("Invalid code being generated - None still in param list")
 
                 # Channels
                 channel_connects = ""
