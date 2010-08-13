@@ -3,6 +3,7 @@
 # (c) 2010 Jon Simpson <me@jonsimpson.co.uk>
 import wx
 import logging, logging.config
+import os.path, sys
 
 class ProcessesApp (wx.App):
     def OnInit(self):
@@ -15,8 +16,7 @@ class ProcessesApp (wx.App):
         )
         frame.Show()
         return True
-    # FIXME: Separator platform independent.
-    #logging.config.fileConfig('constructor/logging.conf')
+    logging.config.fileConfig(os.path.join(os.path.dirname(os.path.abspath(sys.argv[0])), 'constructor/logging.conf'))
 
 app = ProcessesApp(redirect=False)
 app.MainLoop()
