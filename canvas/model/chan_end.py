@@ -1,6 +1,7 @@
 class ChanEnd (object):
-    def __init__ (self, name, direction, datatype):
-        self._name, self._direction, self._datatype = name, direction, datatype
+    def __init__ (self, name, direction, datatype, generictype=None):
+        self._name, self._direction = name, direction
+        self._generictype, self._datatype = generictype, datatype
 
     def get_name (self):
         return self._name
@@ -14,3 +15,6 @@ class ChanEnd (object):
         return self._datatype
     datatype = property(get_datatype)
 
+    def get_generictype (self):
+        return self._generictype
+    generictype = property(get_generictype)

@@ -6,8 +6,8 @@ from canvas import model
 
 class ChanEnd (model.ChanEnd):
     
-    def __init__ (self, name, direction, datatype):
-        model.ChanEnd.__init__(self, name, direction, datatype)
+    def __init__ (self, name, direction, datatype, generictype=None):
+        model.ChanEnd.__init__(self, name, direction, datatype, generictype)
         self.style = AttrDict()
         s = self.style
         s.fill            = (218, 230, 242)
