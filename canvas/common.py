@@ -143,9 +143,16 @@ class CanvasPanel (wx.Panel):
                 self.context_properties = wx.NewId()
                 self.Bind(wx.EVT_MENU, self.on_context_properties, id=self.context_properties)
 
+            # Only bind the first time.
+            if not hasattr(self, 'context_delete'):
+                self.context_delete = wx.NewId()
+                self.Bind(wx.EVT_MENU, self.on_context_delete, id=self.context_delete)
+
             # Make the popup menu
             menu = wx.Menu()
             menu.Append(self.context_properties, "Properties")
+            menu.AppendSeparator()
+            menu.Append(self.context_delete, "Delete")
             self.PopupMenu(menu)
             menu.Destroy()
 
@@ -158,6 +165,13 @@ class CanvasPanel (wx.Panel):
         pd = PropertiesDialog(selected)
         pd.ShowModal()
         pd.Destroy()
+        self.Refresh()
+        self._right_selected = None
+
+    def on_context_delete(self, event):
+        selected = self._right_selected['hit']
+        log.debug("Delete for %s requested" % selected)
+        self._network.remove_process(selected)
         self.Refresh()
         self._right_selected = None
 
