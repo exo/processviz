@@ -102,7 +102,8 @@ class CanvasPanel (wx.Panel):
                 if self._chan_start_point is not None:
                     types_match = self._chan_start_point.datatype == self._selected['hit'].datatype
                     different_directions = self._chan_start_point.direction != self._selected['hit'].direction
-                    if types_match and different_directions:
+                    one_is_generic = self._chan_start_point.datatype is None or self._selected['hit'].datatype is None
+                    if (types_match or one_is_generic) and different_directions:
                         # Types match, work out which way round the channel is.
                         log.debug("Creating a channel.")
                         if self._chan_start_point.direction == 'output':
@@ -111,10 +112,21 @@ class CanvasPanel (wx.Panel):
                         else:
                             src = self._selected['hit']
                             dest = self._chan_start_point
-                        self._network.add_channel(Channel('c' + str(self._chan_count), src.datatype, src, dest))
+                        self.network.add_channel(Channel('c' + str(self._chan_count), src.datatype, src, dest))
                         self._chan_count += 1
                         self._chan_start_point.selected = False
                         self._chan_start_point = None
+
+                        # If the type is generic, propogate...
+                        if src.datatype is None:
+                            src.datatype = dest.datatype
+                            self.network.propogate_from_end(dest)
+                            log.debug("Propogating from dest to src")
+                        if dest.datatype is None:
+                            dest.datatype = src.datatype
+                            self.network.propogate_from_end(dest)
+                            log.debug("Propogating from src to dest")
+
                         self.Refresh()
                     else:
                         # Types don't match, abort.
@@ -135,6 +147,9 @@ class CanvasPanel (wx.Panel):
     def on_right_down(self, event):
         right_selected = self._network.hit_test(event.X, event.Y)
         if right_selected and isinstance(right_selected['hit'], Process):
+            # Print the generic type
+            log.debug("Generic types are %s", right_selected['hit'].get_generic_chan_ends('g1'))
+
             # Store, in case the menu is invoked.
             self._right_selected = right_selected
 
@@ -204,12 +219,12 @@ class CanvasDropTarget(wx.PyDropTarget):
             inputs = []
             if data['input']:
                 for end in data['input']:
-                    inputs.append(ChanEnd(end['name'], 'input', end['type']))
+                    inputs.append(ChanEnd(end['name'], 'input', end['type'], end['generictype']))
 
             outputs = []
             if data['output']:
                 for end in data['output']:
-                    outputs.append(ChanEnd(end['name'], 'output', end['type']))
+                    outputs.append(ChanEnd(end['name'], 'output', end['type'], end['generictype']))
 
             params = []
             if data['params']:

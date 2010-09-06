@@ -13,7 +13,10 @@ class ChanEnd (object):
 
     def get_datatype (self):
         return self._datatype
-    datatype = property(get_datatype)
+
+    def set_datatype (self, datatype):
+        self._datatype = datatype
+    datatype = property(get_datatype, set_datatype)
 
     def get_generictype (self):
         return self._generictype

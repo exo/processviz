@@ -23,3 +23,7 @@ class Channel (object):
 
     name = property(get_name)
 
+    def get_ends (self):
+        return [self.src, self.dest]
+
+    ends = property(get_ends)

@@ -69,3 +69,10 @@ class Process (object):
         return self._parent
 
     parent = property(get_parent)
+
+    def get_generic_chan_ends (self, generictype):
+        ends = []
+        for chan in (self.input_chans + self.output_chans):
+            if chan.datatype is None:
+                ends.append(chan)
+        return ends

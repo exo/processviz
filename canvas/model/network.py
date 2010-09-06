@@ -32,3 +32,20 @@ class Network (object):
 
     def structure (self):
         return dict(_type='Network', channels=self._channels, processes=[n.structure() for n in self._processes])
+
+    def propogate_from_end (self, source_end):
+        for process in self.processes:
+            if source_end in (process.input_chans + process.output_chans):
+                generic_ends = process.get_generic_chan_ends(source_end.generictype)
+                for g in generic_ends:
+                    print "Flipping datatype to %s from %s" % (g.datatype,source_end.datatype)
+                    g.datatype = source_end.datatype
+                    for c in self.channels:
+                        n = None
+                        if c.src is g:
+                            n = c.dest
+                        elif c.dest is g:
+                            n = c.src
+                        # If this end is set correctly, propogate from the other end.
+                        if n is not None and n.datatype is not None:
+                            self.propogate_from_end(n)
