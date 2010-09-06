@@ -4,11 +4,13 @@ params:
 
 input:
  - name: in
-   type: generic
+   type:
+   generictype: g1
    desc: Input values to be buffered
 output:
  - name: out
-   type: generic
+   type:
+   generictype: g1
    desc: Last value received by the id process.
 desc: >
   A process that provides a one slot buffer for incoming values.

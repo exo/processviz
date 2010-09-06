@@ -1,0 +1,18 @@
+name: thunk
+requires:
+params:
+
+input:
+output:
+ - name: out
+   type: BOOL
+   generictype:
+   desc: True, infinitely.
+desc: >
+  A process which outputs true infinitely.
+
+--- Code
+PROC prefix (CHAN BOOL out!)
+  WHILE TRUE
+    out ! TRUE
+:

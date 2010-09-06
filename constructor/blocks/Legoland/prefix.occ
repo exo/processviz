@@ -1,0 +1,27 @@
+name: prefix
+requires:
+params:
+- type: int
+  generictype:
+  name: n
+  desc: Starting number
+
+input:
+ - name: in
+   type: INT
+   generictype:
+   desc: Input value to be copied to output
+output:
+ - name: out
+   type: INT
+   generictype:
+   desc: Values copied from input
+desc: >
+  An amazing process
+
+--- Code
+PROC prefix (VAL INT n, CHAN INT in?, out!)
+  SEQ
+    out ! n
+    id (in, out)
+:
