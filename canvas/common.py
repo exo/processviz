@@ -117,15 +117,16 @@ class CanvasPanel (wx.Panel):
                         self._chan_start_point.selected = False
                         self._chan_start_point = None
 
-                        # If the type is generic, propogate...
-                        if src.datatype is None:
-                            src.datatype = dest.datatype
-                            self.network.propogate_from_end(dest)
-                            log.debug("Propogating from dest to src")
-                        if dest.datatype is None:
-                            dest.datatype = src.datatype
-                            self.network.propogate_from_end(dest)
-                            log.debug("Propogating from src to dest")
+                        # If the type is generic, propogate if one isn't.
+                        if src.datatype is not dest.datatype:
+                            if src.datatype is None:
+                                src.datatype = dest.datatype
+                                self.network.propogate_from_end(dest)
+                                log.debug("Propogating from dest to src")
+                            if dest.datatype is None:
+                                dest.datatype = src.datatype
+                                self.network.propogate_from_end(dest)
+                                log.debug("Propogating from src to dest")
 
                         self.Refresh()
                     else:
