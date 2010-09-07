@@ -11,6 +11,9 @@ class Process (object):
         self._requires = requires
         self._desc = desc
 
+    def __str__ (self):
+        return "Process (name='%s', params=%s, input_chans=%s, output_chans=%s, parent=%s, sub_network=%s, code=%s, requires=%s, desc=%s)" % (self._name, self._params, self._input_chans, self._output_chans, self._parent, self._sub_network, self._code, self._requires, self._desc)
+
     def get_name (self):
         return self._name
 
@@ -76,3 +79,8 @@ class Process (object):
             if chan.datatype is None:
                 ends.append(chan)
         return ends
+
+    def get_chan_ends (self):
+        return self.input_chans + self.output_chans
+
+    chan_ends = property(get_chan_ends)

@@ -185,9 +185,9 @@ class CanvasPanel (wx.Panel):
         self._right_selected = None
 
     def on_context_delete(self, event):
-        selected = self._right_selected['hit']
-        log.debug("Delete for %s requested" % selected)
-        self._network.remove_process(selected)
+        selected_process = self._right_selected['hit']
+        log.debug("Delete for %s requested" % selected_process)
+        self.network.remove_process(selected_process)
         self.Refresh()
         self._right_selected = None
 

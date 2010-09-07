@@ -3,6 +3,9 @@ class ChanEnd (object):
         self._name, self._direction = name, direction
         self._generictype, self._datatype = generictype, datatype
 
+    def __repr__ (self):
+        return "ChanEnd (name='%s', direction='%s', datatype='%s', generictype='%s')" % (self._name, self._direction, self._datatype, self._generictype)
+
     def get_name (self):
         return self._name
     name = property(get_name)

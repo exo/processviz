@@ -7,6 +7,9 @@ class Param (object):
         self._name, self._datatype = name, datatype
         self._value, self._desc = value, desc
 
+    def __repr__ (self):
+        return "Param (name='%s', datatype='%s', value='%s', desc='%s')" % (self._name, self._datatype, self._value, self._desc)
+
     def get_name (self):
         return self._name
     name = property(get_name)

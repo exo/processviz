@@ -1,8 +1,7 @@
 name: prefix
 requires:
 params:
-- type: int
-  generictype:
+- type: INT
   name: n
   desc: Starting number
 

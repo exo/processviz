@@ -3,6 +3,9 @@ class Channel (object):
         self._name, self._datatype = name, datatype
         self._src, self._dest = src, dest
 
+    def __repr__ (self):
+        return "Channel (name='%s', datatype='%s', src='%s', dest='%s')" % (self._name, self._datatype, self._src, self._dest)
+
     def get_src (self):
         return self._src
 
