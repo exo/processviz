@@ -88,7 +88,7 @@ class ChanEnd (model.ChanEnd):
         style = self.style
         with MeasuringContext() as gc:
             gc.SetFont(gc.CreateFont(wx.Font(pointSize=style.text_size, family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL), style.text_colour))
-            (w, h) = gc.GetTextExtent(self.name)
+            (w, h) = gc.GetTextExtent(self.label)
         w += (style.pad * 2)
         return (w, h)
 
@@ -101,7 +101,7 @@ class ChanEnd (model.ChanEnd):
             #x -= self.style.pad + (self.get_label_size()[0]/2)
         font = gc.CreateFont(wx.Font(pointSize=self.style.text_size, family=wx.FONTFAMILY_SWISS, style=wx.FONTSTYLE_NORMAL, weight=wx.FONTWEIGHT_NORMAL), self.style.text_colour)
         gc.SetFont(font)
-        gc.DrawText(self.name, x, (y - self.get_label_size()[1]/2))
+        gc.DrawText(self.label, x, (y - self.get_label_size()[1]/2))
     
     def draw_end (self, gc):
         style, x, y = self.style, self.x, self.y
@@ -131,3 +131,8 @@ class ChanEnd (model.ChanEnd):
 
     def on_motion (self, event, transform, offset):
         return
+
+    def get_label (self):
+        return "%s (%s)" % (self.name, self.datatype)
+
+    label = property(get_label)
