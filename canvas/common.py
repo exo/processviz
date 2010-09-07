@@ -121,7 +121,7 @@ class CanvasPanel (wx.Panel):
                         if src.datatype is not dest.datatype:
                             if src.datatype is None:
                                 src.datatype = dest.datatype
-                                self.network.propogate_from_end(dest)
+                                self.network.propogate_from_end(src)
                                 log.debug("Propogating from dest to src")
                             if dest.datatype is None:
                                 dest.datatype = src.datatype
