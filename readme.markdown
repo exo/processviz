@@ -3,6 +3,14 @@ Jon Simpson <http://www.jonsimpson.co.uk>
 
 This repository contains components related to visual process-oriented programming, developed as part of my PhD.
 
+## Use
+
+Requires wxPython, YAML & Mako. To get going on Mac OS X 10.8 via [HomeBrew](http://mxcl.github.com/homebrew/):
+
+    brew install python --framework
+    brew install wxmac
+    pip install pyyaml mako
+
 ## Processes
 A tool to allow the visual construction of process networks. Requires Python 2.6 with wxPython, Mako and YAML modules.
 
