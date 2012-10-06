@@ -134,15 +134,15 @@ class Frame(wx.Frame):
             log.info("Can't build code - diagram not saved")
 
     def BlockChanged(self, event):
-        self.DisplayInfoPage(
-                self.toolbox.GetItemData(
-                    self.toolbox.GetSelection()).GetData())
+        selectionData = self.toolbox.GetItemData(self.toolbox.GetSelection())
+        if selectionData:
+            self.DisplayInfoPage(selectionData.GetData())
 
     def StartToolboxDrag (self, event):
         #print "Tree is dragging"
-        selectedData =\
-            self.toolbox.GetItemData(self.toolbox.GetSelection()).GetData()
-        if selectedData:
+        selectionData = self.toolbox.GetItemData(self.toolbox.GetSelection())
+        if selectionData:
+            selectedData = selectionData.GetData()
             blockObject = BlockDropData()
             blockObject.SetData(pickle.dumps(selectedData))
             dropSource = wx.DropSource(self.toolbox)
