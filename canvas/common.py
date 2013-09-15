@@ -199,6 +199,26 @@ class CanvasPanel (wx.Panel):
         gc.SetBrush(brush)
         gc.DrawPath(path)
 
+    def add_drop_data(self, x, y, data):
+        inputs = []
+        if data['input']:
+            for end in data['input']:
+                inputs.append(ChanEnd(end['name'], 'input', end['type'], end['generictype']))
+
+        outputs = []
+        if data['output']:
+            for end in data['output']:
+                outputs.append(ChanEnd(end['name'], 'output', end['type'], end['generictype']))
+
+        params = []
+        if data['params']:
+            for param in data['params']:
+                params.append(Param(param['name'], param['type'], value=None, desc=param['desc']))
+
+        p = Process (x, y, data['name'], params=params, input_chans=inputs, output_chans=outputs, code=data['code'], requires=data['requires'], desc=data['desc'])
+        self.network.add_process(p)
+        self.Refresh()
+
 class CanvasDropTarget(wx.PyDropTarget):
     def __init__(self, canvas):
         wx.PyDropTarget.__init__(self)
@@ -216,26 +236,8 @@ class CanvasDropTarget(wx.PyDropTarget):
         if self.GetData():
             data = self.drop_data.GetDataHere()
             data = pickle.loads(data)
+            self.canvas.add_drop_data(x, y, d)
 
-            inputs = []
-            if data['input']:
-                for end in data['input']:
-                    inputs.append(ChanEnd(end['name'], 'input', end['type'], end['generictype']))
-
-            outputs = []
-            if data['output']:
-                for end in data['output']:
-                    outputs.append(ChanEnd(end['name'], 'output', end['type'], end['generictype']))
-
-            params = []
-            if data['params']:
-                for param in data['params']:
-                    params.append(Param(param['name'], param['type'], value=None, desc=param['desc']))
-
-            canvas = self.canvas
-            p = Process (x, y, data['name'], params=params, input_chans=inputs, output_chans=outputs, code=data['code'], requires=data['requires'], desc=data['desc'])
-            canvas.network.add_process(p)
-            canvas.Refresh()
         return d
 
 class BlockDropData(wx.PyDataObjectSimple):

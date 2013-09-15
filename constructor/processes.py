@@ -19,7 +19,7 @@ from Config import Config
 from BlockSource import BlockSource
 
 # Canvas component
-from canvas.common import CanvasPanel, BlockDropData
+from canvas.common import CanvasPanel, BlockDropData, CanvasDropTarget
 
 # Mako for the info panel
 from Templates import renderTemplate
@@ -84,6 +84,7 @@ class Frame(wx.Frame):
         self.Bind(wx.EVT_MENU, self.on_build_item, build_item)
 
         self.Bind(wx.EVT_TREE_SEL_CHANGED, self.BlockChanged)
+        self.Bind(wx.EVT_TREE_ITEM_ACTIVATED, self.BlockActivated)
         log.debug("Finished initialising main wxFrame and AUIManager panes.")
 
     def get_diagram (self):
@@ -137,6 +138,12 @@ class Frame(wx.Frame):
         selectionData = self.toolbox.GetItemData(self.toolbox.GetSelection())
         if selectionData:
             self.DisplayInfoPage(selectionData.GetData())
+
+    def BlockActivated(self, event):
+        selectionData = self.toolbox.GetItemData(self.toolbox.GetSelection())
+        if selectionData:
+            selectedData = selectionData.GetData()
+            self.diagram.add_drop_data(0, 0, selectedData)
 
     def StartToolboxDrag (self, event):
         #print "Tree is dragging"
